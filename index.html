@@ -939,8 +939,8 @@
   <div id="page-lpfsa" class="page">
     <div class="page-header">
       <div>
-        <h1>Limited-Purpose FSA</h1>
-        <p>Dental &amp; vision expenses paid from your LPFSA — use it or lose it by the plan deadline</p>
+        <h1><span id="lpfsaTitleYear">2027</span> Limited-Purpose FSA</h1>
+        <p id="lpfsaSubtitle">Plan year 1/1/2027 – 12/31/2027 · dental &amp; vision · unused money does not carry over</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-primary btn-sm" onclick="openAddExpense('lpfsa')"><i data-lucide="plus" class="licon" style="width:13px;height:13px"></i> Add Expense</button>
@@ -948,7 +948,7 @@
       </div>
     </div>
 
-    <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
+    <div id="lpfsaYearBar" style="display:flex;justify-content:flex-end;margin-bottom:6px">
       <div class="filter-bar" style="margin:0">
         <label style="font-weight:600;color:var(--gray-600)"><i data-lucide="calendar" class="licon" style="width:14px;height:14px"></i> Plan Year:</label>
         <select id="lpfsaFilterYear" onchange="renderLPFSA()"></select>
@@ -1245,7 +1245,7 @@ const SETTING_DEFS = [
   ['Scheduled payment',          600,  'Amount of each scheduled check to the co-parent'],
   ['Children opening 27% owed',  0,    '27% owed carried in from before this tracker (not covered by individual rows)'],
   ['Children opening paid',      0,    'Total already deducted from checks before this tracker'],
-  [`LPFSA election ${new Date().getFullYear() + 1}`, '', 'Limited-purpose FSA election for that plan year (add a row per year)'],
+  [`LPFSA election ${new Date().getFullYear() + 1}`, '', 'Limited-purpose FSA election for that plan year — FSAs do not carry over (add a row per new plan year)'],
 ];
 
 let RATE = 0.27;
@@ -1876,6 +1876,12 @@ function calcHSA() {
 function lpfsaElection(year) {
   const v = DATA.settings[`LPFSA election ${year}`];
   return v === undefined || v === '' ? null : numOr(v, 0);
+}
+// Plan years = years with an "LPFSA election YYYY" row in Settings (2027 is the first).
+const LPFSA_FIRST_YEAR = '2027';
+function lpfsaPlanYears() {
+  const ys = Object.keys(DATA.settings).map(k => (k.match(/^LPFSA election (\d{4})$/) || [])[1]).filter(Boolean);
+  return ys.length ? [...new Set(ys)].sort() : [LPFSA_FIRST_YEAR];
 }
 function isLPFSAEligibleCategory(cat) { return !cat || cat === 'Dental' || cat === 'Vision'; }
 
@@ -2554,6 +2560,7 @@ function openAddExpense(context) {
   document.getElementById('expReceipt').value = '';
   document.getElementById('expNotes').value = '';
   document.getElementById('expCategory').value = context === 'lpfsa' ? 'Dental' : '';
+  if (context === 'lpfsa' && !lpfsaPlanYears().includes(today.slice(0, 4))) document.getElementById('expDate').value = `${lpfsaPlanYears()[0]}-01-01`;
   document.getElementById('expAccount').value = context === 'lpfsa' ? 'LPFSA' : 'HSA';
   document.getElementById('expHistorical').checked = false;
   document.getElementById('expExclude27').checked = false;
@@ -2563,22 +2570,28 @@ function openAddExpense(context) {
   document.getElementById('addExpenseTitle').textContent = titles[context] || 'Add Medical Expense';
 
   document.getElementById('expPerson').onchange = updateExpensePreview;
+  document.getElementById('expDate').onchange = () => onCategoryChange('exp');
   updateExpensePreview();
   openModal('modalAddExpense');
 }
 
-// Dental/vision from 2027 on default to the limited-purpose FSA.
+// Dental/vision dated inside an LPFSA plan year default to the LPFSA.
 function onCategoryChange(prefix, accountChanged) {
   const cat = document.getElementById(prefix + 'Category').value;
   const acct = document.getElementById(prefix + 'Account');
   const date = document.getElementById(prefix + 'Date').value;
-  if (!accountChanged && (cat === 'Dental' || cat === 'Vision') && date >= '2027-01-01' && acct.value === 'HSA') acct.value = 'LPFSA';
+  if (!accountChanged && (cat === 'Dental' || cat === 'Vision') && lpfsaPlanYears().includes(date.slice(0, 4)) && acct.value === 'HSA') acct.value = 'LPFSA';
   if (prefix === 'exp') updateExpensePreview(); else updateEditPreview();
 }
 
-function lpfsaWarning(account, category) {
-  if (account !== 'LPFSA' || isLPFSAEligibleCategory(category)) return '';
-  return `A limited-purpose FSA usually covers only <strong>dental and vision</strong> (some plans also cover medical after your deductible). Check your plan before claiming this from the LPFSA.`;
+function lpfsaWarning(account, category, date) {
+  if (account !== 'LPFSA') return '';
+  const years = lpfsaPlanYears();
+  if (date && !years.includes(date.slice(0, 4)))
+    return `Your limited-purpose FSA only covers expenses dated in <strong>${years.join(', ')}</strong> (1/1 – 12/31). This expense is dated ${fmtDate(date)} — use the HSA instead.`;
+  if (!isLPFSAEligibleCategory(category))
+    return `A limited-purpose FSA usually covers only <strong>dental and vision</strong> (some plans also cover medical after your deductible). Check your plan before claiming this from the LPFSA.`;
+  return '';
 }
 
 function updateExpensePreview() {
@@ -2586,7 +2599,7 @@ function updateExpensePreview() {
   const account = document.getElementById('expAccount').value;
   const category = document.getElementById('expCategory').value;
   const preview = document.getElementById('expPreview');
-  const warn = lpfsaWarning(account, category);
+  const warn = lpfsaWarning(account, category, document.getElementById('expDate').value);
   if (!person && !warn) { preview.style.display = 'none'; return; }
   const acctName = { HSA: 'HSA Tracking', LPFSA: 'LPFSA Tracker', None: '' }[account];
   const where = [acctName, isKid(person) && !document.getElementById('expExclude27').checked ? 'Children\'s Medical Expenses (27% = co-parent\'s share)' : '']
@@ -2600,7 +2613,7 @@ function updateExpensePreview() {
 }
 
 function updateEditPreview() {
-  const warn = lpfsaWarning(document.getElementById('editExpAccount').value, document.getElementById('editExpCategory').value);
+  const warn = lpfsaWarning(document.getElementById('editExpAccount').value, document.getElementById('editExpCategory').value, document.getElementById('editExpDate').value);
   const el = document.getElementById('editExpPreview');
   el.style.display = warn ? 'flex' : 'none';
   el.innerHTML = warn ? `<i data-lucide="alert-triangle" class="licon" style="width:15px;height:15px"></i> <span>${warn}</span>` : '';
@@ -2647,6 +2660,7 @@ function openEditExpense(id) {
   document.getElementById('editExpAccount').value = e.account || 'HSA';
   document.getElementById('editExpHistorical').checked = !!e.reference;
   document.getElementById('editExpExclude27').checked = !!e.exclude27;
+  document.getElementById('editExpDate').onchange = updateEditPreview;
   updateEditPreview();
   openModal('modalEditExpense');
 }
@@ -2756,24 +2770,24 @@ function deletePayment(id) {
 // ═══════════════════════════════════════════════════════════
 
 function renderLPFSA() {
-  const curYear = new Date().getFullYear();
-  const electionYears = Object.keys(DATA.settings).map(k => (k.match(/^LPFSA election (\d{4})$/) || [])[1]).filter(Boolean);
-  const expYears = DATA.expenses.filter(e => e.account === 'LPFSA').map(e => e.date.slice(0, 4));
-  const years = [...new Set([...electionYears, ...expYears, String(curYear), String(curYear + 1)])].sort().reverse();
+  const years = lpfsaPlanYears();
   const ysel = document.getElementById('lpfsaFilterYear');
   const prev = ysel.value;
-  // Default: the latest year that has an election or expenses, else next year
-  const dflt = [...electionYears, ...expYears].sort().reverse()[0] || String(curYear + 1);
-  const chosen = prev || dflt;
-  ysel.innerHTML = years.map(y => `<option ${y === chosen ? 'selected' : ''}>${y}</option>`).join('');
+  const curYear = String(new Date().getFullYear());
+  // Default: the current plan year if we're in one, else the next upcoming one
+  const chosen = years.includes(prev) ? prev : (years.includes(curYear) ? curYear : (years.find(y => y > curYear) || years[years.length - 1]));
+  ysel.innerHTML = years.slice().reverse().map(y => `<option ${y === chosen ? 'selected' : ''}>${y}</option>`).join('');
+  document.getElementById('lpfsaYearBar').style.display = years.length > 1 ? 'flex' : 'none';
   const year = ysel.value;
+  document.getElementById('lpfsaTitleYear').textContent = year;
+  document.getElementById('lpfsaSubtitle').innerHTML = `Plan year 1/1/${year} – 12/31/${year} · dental &amp; vision · unused money does not carry over`;
 
   const l = calcLPFSA(year);
   document.getElementById('lpfsaStats').innerHTML = `
     <div class="stat-card">
       <div class="label">${year} Election</div>
       <div class="value blue">${l.election === null ? '—' : fmt$(l.election)}</div>
-      <div class="sub"><a href="#" onclick="editElection('${year}');return false">${l.election === null ? 'Set election' : 'Change'}</a></div>
+      <div class="sub">${l.election === null ? '' : `Available 1/1/${year} · `}<a href="#" onclick="editElection('${year}');return false">${l.election === null ? 'Set election' : 'Change'}</a></div>
     </div>
     <div class="stat-card">
       <div class="label">Claimed in ${year}</div>
@@ -2781,9 +2795,9 @@ function renderLPFSA() {
       <div class="sub">Eligible LPFSA expenses</div>
     </div>
     <div class="stat-card">
-      <div class="label">Left to Use in ${year}</div>
+      <div class="label">Left to Use by 12/31/${year}</div>
       <div class="value ${l.remaining > 0 ? 'red' : 'green'}">${l.remaining === null ? '—' : (l.remaining < 0 ? '−' : '') + fmt$(l.remaining)}</div>
-      <div class="sub">${l.remaining === null ? 'Set your election first' : l.remaining > 0 ? 'Use it or lose it' : l.remaining < 0 ? 'Claims exceed election' : 'Fully used'}</div>
+      <div class="sub">${l.remaining === null ? 'Set your election first' : l.remaining > 0 ? `Doesn't carry over to ${+year + 1}` : l.remaining < 0 ? 'Claims exceed election' : 'Fully used'}</div>
     </div>
     <div class="stat-card">
       <div class="label">LPFSA Owed to You</div>
@@ -2794,9 +2808,15 @@ function renderLPFSA() {
   const notice = document.getElementById('lpfsaNotice');
   const yearEnd = new Date(Number(year), 11, 31);
   const daysLeft = Math.ceil((yearEnd - new Date()) / 86400000);
-  notice.innerHTML = l.remaining > 0 && daysLeft >= 0 && daysLeft <= 75
-    ? `<div class="notice notice-yellow" style="margin-bottom:16px">${li('alert-triangle', 15)} <span>${fmt$(l.remaining)} of your ${year} election is unused and the plan year ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. Check your plan's grace period or carryover rules.</span></div>`
-    : '';
+  const stray = DATA.expenses.filter(e => e.account === 'LPFSA' && !years.includes(e.date.slice(0, 4)));
+  notice.innerHTML = (l.election === null
+    ? `<div class="notice notice-blue" style="margin-bottom:16px">${li('info', 15)} <span>Enter your ${year} election so the tracker can show what's left to use. <a href="#" onclick="editElection('${year}');return false">Set election</a></span></div>` : '')
+    + (l.remaining > 0 && daysLeft >= 0 && daysLeft <= 75
+    ? `<div class="notice notice-yellow" style="margin-bottom:16px">${li('alert-triangle', 15)} <span>${fmt$(l.remaining)} of your ${year} LPFSA is unused and the plan year ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. FSA money doesn't carry over — anything left after 12/31/${year} is lost. Check your plan's deadline for submitting claims.</span></div>`
+    : '')
+    + (stray.length
+    ? `<div class="notice notice-yellow" style="margin-bottom:16px">${li('alert-triangle', 15)} <span>${stray.length} expense${stray.length > 1 ? 's are' : ' is'} marked LPFSA but dated outside the plan year (${stray.map(e => fmtDate(e.date)).join(', ')}). Change ${stray.length > 1 ? 'them' : 'it'} to HSA.</span></div>`
+    : '');
 
   const exps = DATA.expenses.filter(e => e.account === 'LPFSA' && e.date.startsWith(year)).sort((a, b) => b.date.localeCompare(a.date));
   document.getElementById('lpfsaExpenseBody').innerHTML = exps.length ? exps.map(e => `
