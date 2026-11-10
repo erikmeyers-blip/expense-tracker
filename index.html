@@ -974,7 +974,7 @@
       <div class="card-title"><i data-lucide="landmark" class="licon" style="width:15px;height:15px"></i> LPFSA Reimbursements</div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Date</th><th>Amount</th><th>Notes</th><th></th></tr></thead>
+          <thead><tr><th>Date</th><th>Withdrawn</th><th>Balance After</th><th>Notes</th><th></th></tr></thead>
           <tbody id="lpfsaPaybackBody"></tbody>
           <tfoot id="lpfsaPaybackFoot"></tfoot>
         </table>
@@ -1885,16 +1885,27 @@ function lpfsaPlanYears() {
 }
 function isLPFSAEligibleCategory(cat) { return !cat || cat === 'Dental' || cat === 'Vision'; }
 
+// A reimbursement belongs to the plan year it's dated in; one paid early the
+// next year (claims run-out) belongs to the latest plan year before it.
+function lpfsaPlanYearOf(date) {
+  const years = lpfsaPlanYears(), y = date.slice(0, 4);
+  if (years.includes(y)) return y;
+  return years.filter(py => py < y).pop() || years[0];
+}
+
+// The full election is available on 1/1; each reimbursement draws it down.
 function calcLPFSA(year) {
-  const claimed = DATA.expenses.filter(e => e.account === 'LPFSA' && !e.reference);
-  const reimbursedAll = DATA.reimbursements.filter(p => p.account === 'LPFSA');
-  const claimedYear = claimed.filter(e => e.date.startsWith(year)).reduce((s, e) => s + e.amount, 0);
+  const expenses = DATA.expenses.filter(e => e.account === 'LPFSA' && !e.reference && e.date.startsWith(year));
+  const reimbursements = DATA.reimbursements.filter(p => p.account === 'LPFSA' && lpfsaPlanYearOf(p.date) === year);
+  const claimedYear = expenses.reduce((s, e) => s + e.amount, 0);
+  const reimbursedYear = reimbursements.reduce((s, p) => s + p.amount, 0);
   const election = lpfsaElection(year);
   return {
-    election,
-    claimedYear,
-    remaining: election === null ? null : election - claimedYear,
-    owed: claimed.reduce((s, e) => s + e.amount, 0) - reimbursedAll.reduce((s, p) => s + p.amount, 0),
+    election, claimedYear, reimbursedYear, reimbursements,
+    expenseCount: expenses.length,
+    balance:   election === null ? null : election - reimbursedYear,   // what the FSA account still holds
+    remaining: election === null ? null : election - claimedYear,      // not yet spent on expenses
+    pending:   claimedYear - reimbursedYear,                           // claimed, not yet paid out
   };
 }
 
@@ -2707,6 +2718,11 @@ function savePayback() {
     alert('Please fill in Date and Amount.');
     return;
   }
+  if (account === 'LPFSA') {
+    const year = lpfsaPlanYearOf(date), l = calcLPFSA(year);
+    if (l.balance !== null && amount > l.balance + 0.005 &&
+        !confirm(`That's more than the ${year} FSA balance (${fmt$(l.balance)}). Record it anyway?`)) return;
+  }
   closeModal('modalAddPayback');
   commit({ kind: 'upsert', table: 'reimbursements', record: { id: uid(), date, account, amount, notes } });
   showToast(`${account} reimbursement recorded: ${fmt$(amount)}`);
@@ -2785,24 +2801,24 @@ function renderLPFSA() {
   const l = calcLPFSA(year);
   document.getElementById('lpfsaStats').innerHTML = `
     <div class="stat-card">
-      <div class="label">${year} Election</div>
-      <div class="value blue">${l.election === null ? '—' : fmt$(l.election)}</div>
-      <div class="sub">${l.election === null ? '' : `Available 1/1/${year} · `}<a href="#" onclick="editElection('${year}');return false">${l.election === null ? 'Set election' : 'Change'}</a></div>
+      <div class="label">FSA Balance</div>
+      <div class="value blue">${l.balance === null ? '—' : (l.balance < 0 ? '−' : '') + fmt$(l.balance)}</div>
+      <div class="sub">${l.election === null ? '' : `Started at ${fmt$(l.election)} on 1/1/${year} · `}<a href="#" onclick="editElection('${year}');return false">${l.election === null ? 'Set starting balance' : 'Change'}</a></div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Waiting to Be Reimbursed</div>
+      <div class="value ${l.pending > 0.005 ? 'red' : 'green'}">${l.pending < -0.005 ? '−' : ''}${fmt$(l.pending)}</div>
+      <div class="sub">${l.pending > 0.005 ? 'Claimed but not paid out yet' : l.pending < -0.005 ? 'Paid out more than claimed' : 'All claims paid'}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Not Yet Spent</div>
+      <div class="value ${l.remaining > 0 ? 'red' : 'green'}">${l.remaining === null ? '—' : (l.remaining < 0 ? '−' : '') + fmt$(l.remaining)}</div>
+      <div class="sub">${l.remaining === null ? 'Set your starting balance first' : l.remaining > 0 ? `Use by 12/31/${year} — doesn't carry over` : l.remaining < 0 ? 'Claims exceed election' : 'Fully used'}</div>
     </div>
     <div class="stat-card">
       <div class="label">Claimed in ${year}</div>
       <div class="value">${fmt$(l.claimedYear)}</div>
-      <div class="sub">Eligible LPFSA expenses</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Left to Use by 12/31/${year}</div>
-      <div class="value ${l.remaining > 0 ? 'red' : 'green'}">${l.remaining === null ? '—' : (l.remaining < 0 ? '−' : '') + fmt$(l.remaining)}</div>
-      <div class="sub">${l.remaining === null ? 'Set your election first' : l.remaining > 0 ? `Doesn't carry over to ${+year + 1}` : l.remaining < 0 ? 'Claims exceed election' : 'Fully used'}</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">LPFSA Owed to You</div>
-      <div class="value ${l.owed > 0.005 ? 'red' : 'green'}">${l.owed < -0.005 ? '−' : ''}${fmt$(l.owed)}</div>
-      <div class="sub">All years · claimed − reimbursed</div>
+      <div class="sub">${l.expenseCount} eligible expense${l.expenseCount === 1 ? '' : 's'}</div>
     </div>`;
 
   const notice = document.getElementById('lpfsaNotice');
@@ -2810,7 +2826,7 @@ function renderLPFSA() {
   const daysLeft = Math.ceil((yearEnd - new Date()) / 86400000);
   const stray = DATA.expenses.filter(e => e.account === 'LPFSA' && !years.includes(e.date.slice(0, 4)));
   notice.innerHTML = (l.election === null
-    ? `<div class="notice notice-blue" style="margin-bottom:16px">${li('info', 15)} <span>Enter your ${year} election so the tracker can show what's left to use. <a href="#" onclick="editElection('${year}');return false">Set election</a></span></div>` : '')
+    ? `<div class="notice notice-blue" style="margin-bottom:16px">${li('info', 15)} <span>Enter your ${year} election — the balance your FSA starts with on 1/1/${year}. <a href="#" onclick="editElection('${year}');return false">Set election</a></span></div>` : '')
     + (l.remaining > 0 && daysLeft >= 0 && daysLeft <= 75
     ? `<div class="notice notice-yellow" style="margin-bottom:16px">${li('alert-triangle', 15)} <span>${fmt$(l.remaining)} of your ${year} LPFSA is unused and the plan year ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. FSA money doesn't carry over — anything left after 12/31/${year} is lost. Check your plan's deadline for submitting claims.</span></div>`
     : '')
@@ -2837,17 +2853,28 @@ function renderLPFSA() {
   document.getElementById('lpfsaExpenseFoot').innerHTML = exps.length
     ? `<tr><td colspan="4">Total (${exps.length} entries)</td><td class="amount">${fmt$(exps.reduce((s, e) => s + e.amount, 0))}</td><td colspan="3"></td></tr>` : '';
 
-  const pbs = DATA.reimbursements.filter(p => p.account === 'LPFSA').sort((a, b) => b.date.localeCompare(a.date));
-  document.getElementById('lpfsaPaybackBody').innerHTML = pbs.length ? pbs.map(p => `
+  // Oldest first so the balance runs down the table
+  const pbs = l.reimbursements.slice().sort((a, b) => a.date.localeCompare(b.date));
+  let bal = l.election;
+  const startRow = l.election === null ? '' : `
+    <tr style="background:var(--gray-50)">
+      <td>${fmtDate(`${year}-01-01`)}</td><td class="muted">Starting balance</td>
+      <td class="amount"><strong>${fmt$(l.election)}</strong></td><td></td><td></td>
+    </tr>`;
+  document.getElementById('lpfsaPaybackBody').innerHTML = startRow + (pbs.length ? pbs.map(p => {
+    if (bal !== null) bal -= p.amount;
+    return `
     <tr>
       <td>${fmtDate(p.date)}</td>
-      <td class="amount"><strong class="amount-green">${fmt$(p.amount)}</strong></td>
+      <td class="amount"><strong class="amount-green">− ${fmt$(p.amount)}</strong></td>
+      <td class="amount running-balance">${bal === null ? '—' : (bal < -0.005 ? '−' : '') + fmt$(bal)}</td>
       <td style="font-size:12px;color:var(--gray-500)">${esc(p.notes)}</td>
       <td><div class="actions"><button class="del" onclick="deletePayback('${p.id}')" title="Delete">${li('trash-2', 14)}</button></div></td>
-    </tr>`).join('')
-    : `<tr><td colspan="4"><div class="empty-state"><div class="icon">${li('landmark', 38)}</div><p>No LPFSA reimbursements recorded yet.</p></div></td></tr>`;
+    </tr>`;
+  }).join('')
+    : `<tr><td colspan="5"><div class="empty-state"><div class="icon">${li('landmark', 38)}</div><p>No ${year} LPFSA reimbursements yet.</p></div></td></tr>`);
   document.getElementById('lpfsaPaybackFoot').innerHTML = pbs.length
-    ? `<tr><td>Total Reimbursed (all years)</td><td class="amount">${fmt$(pbs.reduce((s, p) => s + p.amount, 0))}</td><td colspan="2"></td></tr>` : '';
+    ? `<tr><td>Total withdrawn</td><td class="amount">${fmt$(l.reimbursedYear)}</td><td class="amount">${l.balance === null ? '' : (l.balance < -0.005 ? '−' : '') + fmt$(l.balance)}</td><td colspan="2"></td></tr>` : '';
   initIcons();
 }
 
