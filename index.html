@@ -700,7 +700,7 @@
       <span class="icon"><i data-lucide="credit-card" class="licon" style="width:16px;height:16px"></i></span> Payment Calculator
     </a>
     <a onclick="showPage('lpfsa')" id="nav-lpfsa">
-      <span class="icon"><i data-lucide="glasses" class="licon" style="width:16px;height:16px"></i></span> LPFSA Tracker
+      <span class="icon"><i data-lucide="glasses" class="licon" style="width:16px;height:16px"></i></span> <span class="lpfsa-label">LPFSA 2027</span>
     </a>
 
     <div class="sidebar-section">Settings</div>
@@ -939,8 +939,8 @@
   <div id="page-lpfsa" class="page">
     <div class="page-header">
       <div>
-        <h1><span id="lpfsaTitleYear">2027</span> Limited-Purpose FSA</h1>
-        <p id="lpfsaSubtitle">Plan year 1/1/2027 – 12/31/2027 · dental &amp; vision · unused money does not carry over</p>
+        <h1>LPFSA <span id="lpfsaTitleYear">2027</span></h1>
+        <p id="lpfsaSubtitle">Limited-purpose FSA · plan year 1/1/2027 – 12/31/2027 · dental &amp; vision · unused money does not carry over</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-primary btn-sm" onclick="openAddExpense('lpfsa')"><i data-lucide="plus" class="licon" style="width:13px;height:13px"></i> Add Expense</button>
@@ -958,7 +958,7 @@
     <div id="lpfsaNotice"></div>
 
     <div class="card">
-      <div class="card-title"><i data-lucide="glasses" class="licon" style="width:15px;height:15px"></i> LPFSA Expenses</div>
+      <div class="card-title"><i data-lucide="glasses" class="licon" style="width:15px;height:15px"></i> <span class="lpfsa-label">LPFSA 2027</span>&nbsp;Expenses</div>
       <div class="table-wrap">
         <table>
           <thead>
@@ -971,7 +971,7 @@
     </div>
 
     <div class="card">
-      <div class="card-title"><i data-lucide="landmark" class="licon" style="width:15px;height:15px"></i> LPFSA Reimbursements</div>
+      <div class="card-title"><i data-lucide="landmark" class="licon" style="width:15px;height:15px"></i> <span class="lpfsa-label">LPFSA 2027</span>&nbsp;Reimbursements</div>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Date</th><th>Withdrawn</th><th>Balance After</th><th>Notes</th><th></th></tr></thead>
@@ -1029,7 +1029,7 @@
         <label>Reimburse From</label>
         <select id="expAccount" onchange="updateExpensePreview()">
           <option value="HSA">HSA</option>
-          <option value="LPFSA">Limited-purpose FSA</option>
+          <option value="LPFSA" class="lpfsa-label">LPFSA 2027</option>
           <option value="None">None (not reimbursed)</option>
         </select>
       </div>
@@ -1076,7 +1076,7 @@
         <label>From Account *</label>
         <select id="pbAccount">
           <option value="HSA">HSA</option>
-          <option value="LPFSA">Limited-purpose FSA</option>
+          <option value="LPFSA" class="lpfsa-label">LPFSA 2027</option>
         </select>
       </div>
       <div class="form-group full">
@@ -1170,7 +1170,7 @@
         <label>Reimburse From</label>
         <select id="editExpAccount" onchange="onCategoryChange('editExp', true)">
           <option value="HSA">HSA</option>
-          <option value="LPFSA">Limited-purpose FSA</option>
+          <option value="LPFSA" class="lpfsa-label">LPFSA 2027</option>
           <option value="None">None (not reimbursed)</option>
         </select>
       </div>
@@ -1819,6 +1819,7 @@ function renderPage(name) {
   if (name === 'hsa') renderHSA();
   if (name === 'children') renderChildren();
   if (name === 'payments') renderPayments();
+  refreshLPFSALabels();
   if (name === 'lpfsa') renderLPFSA();
   renderAuthBanner();
 }
@@ -1882,6 +1883,14 @@ const LPFSA_FIRST_YEAR = '2027';
 function lpfsaPlanYears() {
   const ys = Object.keys(DATA.settings).map(k => (k.match(/^LPFSA election (\d{4})$/) || [])[1]).filter(Boolean);
   return ys.length ? [...new Set(ys)].sort() : [LPFSA_FIRST_YEAR];
+}
+function lpfsaCurrentYear() {
+  const years = lpfsaPlanYears(), cur = String(new Date().getFullYear());
+  return years.includes(cur) ? cur : (years.find(y => y > cur) || years[years.length - 1]);
+}
+function lpfsaLabel(year) { return `LPFSA ${year || lpfsaCurrentYear()}`; }
+function refreshLPFSALabels(year) {
+  document.querySelectorAll('.lpfsa-label').forEach(el => { el.textContent = lpfsaLabel(year); });
 }
 function isLPFSAEligibleCategory(cat) { return !cat || cat === 'Dental' || cat === 'Vision'; }
 
@@ -2577,7 +2586,7 @@ function openAddExpense(context) {
   document.getElementById('expExclude27').checked = false;
   document.getElementById('expPreview').style.display = 'none';
 
-  const titles = { children: 'Add Children\'s Medical Expense', lpfsa: 'Add LPFSA Expense' };
+  const titles = { children: 'Add Children\'s Medical Expense', lpfsa: `Add ${lpfsaLabel()} Expense` };
   document.getElementById('addExpenseTitle').textContent = titles[context] || 'Add Medical Expense';
 
   document.getElementById('expPerson').onchange = updateExpensePreview;
@@ -2612,7 +2621,7 @@ function updateExpensePreview() {
   const preview = document.getElementById('expPreview');
   const warn = lpfsaWarning(account, category, document.getElementById('expDate').value);
   if (!person && !warn) { preview.style.display = 'none'; return; }
-  const acctName = { HSA: 'HSA Tracking', LPFSA: 'LPFSA Tracker', None: '' }[account];
+  const acctName = { HSA: 'HSA Tracking', LPFSA: lpfsaLabel(), None: '' }[account];
   const where = [acctName, isKid(person) && !document.getElementById('expExclude27').checked ? 'Children\'s Medical Expenses (27% = co-parent\'s share)' : '']
     .filter(Boolean).map(x => `<strong>${x}</strong>`).join(' and ');
   preview.style.display = 'flex';
@@ -2725,7 +2734,7 @@ function savePayback() {
   }
   closeModal('modalAddPayback');
   commit({ kind: 'upsert', table: 'reimbursements', record: { id: uid(), date, account, amount, notes } });
-  showToast(`${account} reimbursement recorded: ${fmt$(amount)}`);
+  showToast(`${account === 'LPFSA' ? lpfsaLabel(lpfsaPlanYearOf(date)) : account} reimbursement recorded: ${fmt$(amount)}`);
 }
 
 function deletePayback(id) {
@@ -2796,12 +2805,13 @@ function renderLPFSA() {
   document.getElementById('lpfsaYearBar').style.display = years.length > 1 ? 'flex' : 'none';
   const year = ysel.value;
   document.getElementById('lpfsaTitleYear').textContent = year;
-  document.getElementById('lpfsaSubtitle').innerHTML = `Plan year 1/1/${year} – 12/31/${year} · dental &amp; vision · unused money does not carry over`;
+  refreshLPFSALabels(year);
+  document.getElementById('lpfsaSubtitle').innerHTML = `Limited-purpose FSA · plan year 1/1/${year} – 12/31/${year} · dental &amp; vision · unused money does not carry over`;
 
   const l = calcLPFSA(year);
   document.getElementById('lpfsaStats').innerHTML = `
     <div class="stat-card">
-      <div class="label">FSA Balance</div>
+      <div class="label">LPFSA ${year} Balance</div>
       <div class="value blue">${l.balance === null ? '—' : (l.balance < 0 ? '−' : '') + fmt$(l.balance)}</div>
       <div class="sub">${l.election === null ? '' : `Started at ${fmt$(l.election)} on 1/1/${year} · `}<a href="#" onclick="editElection('${year}');return false">${l.election === null ? 'Set starting balance' : 'Change'}</a></div>
     </div>
