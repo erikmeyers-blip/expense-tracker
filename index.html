@@ -24,7 +24,9 @@
     --gray-100: #f3f4f6;
     --gray-200: #e5e7eb;
     --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
     --gray-500: #6b7280;
+    --gray-600: #4b5563;
     --gray-700: #374151;
     --gray-900: #111827;
     --sidebar-width: 220px;
@@ -54,7 +56,9 @@
     --gray-100: #252d3d;
     --gray-200: #2d3748;
     --gray-300: #4a5568;
+    --gray-400: #8b9ab0;
     --gray-500: #94a3b8;
+    --gray-600: #b6c2d2;
     --gray-700: #cbd5e1;
     --gray-900: #f1f5f9;
     --body-bg: #141b27;
@@ -137,8 +141,9 @@
 
   #sidebar .sync-status {
     padding: 6px 16px 10px;
-    font-size: 11px;
-    color: #64748b;
+    font-size: 12px;
+    color: #94a3b8;
+    background: none; border: none; font-family: inherit; text-align: left; width: 100%;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -510,6 +515,8 @@
 
   .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+  /* Let wide tables scroll inside their card instead of widening the page */
+  .two-col > * { min-width: 0; }
 
   .tooltip-tag {
     font-size: 11px;
@@ -521,8 +528,8 @@
   }
 
   .running-balance {
-    font-size: 11.5px;
-    color: var(--gray-500);
+    font-size: 13px;
+    color: var(--gray-700);
     font-variant-numeric: tabular-nums;
   }
 
@@ -595,7 +602,7 @@
   body.dark tfoot td { background: var(--gray-50); border-top-color: var(--border-color); }
   body.dark .section-divider { border-color: var(--border-color); }
   body.dark .tooltip-tag { background: var(--gray-200); color: var(--gray-500); }
-  body.dark .running-balance { color: var(--gray-500); }
+  body.dark .running-balance { color: var(--gray-700); }
   body.dark label { color: var(--gray-700); }
 
   /* ── Mobile responsive ── */
@@ -662,6 +669,78 @@
 
   /* Hide sidebar close button on desktop */
   .sidebar-close { display: none; }
+
+  /* ── Dashboard: cards that open their page ── */
+  .stat-card.stat-link { cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+  .stat-card.stat-link:hover { border-color: var(--primary); }
+  .stat-card .sub a { color: var(--primary); }
+
+  /* ── Save status in the phone top bar ── */
+  .mobile-topbar .title-wrap {
+    flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start;
+    background: none; border: none; color: inherit; font: inherit; text-align: left; cursor: pointer; padding: 4px 0;
+  }
+  .mobile-topbar .title-wrap .title { flex: none; }
+  #mobSync { font-size: 11.5px; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 1px; }
+  #mobSync .licon svg, #syncStatus .licon svg { width: 13px; height: 13px; }
+
+  /* ── Forms ── */
+  .modal .modal-footer { position: sticky; bottom: -24px; margin-bottom: -24px; padding-bottom: 18px; background: var(--card-bg); z-index: 2; }
+  @media (max-width: 700px) { .modal .modal-footer { bottom: -18px; margin-bottom: -18px; padding-bottom: 14px; } }
+  .person-pills { display: flex; flex-wrap: wrap; gap: 8px; border-radius: 8px; }
+  .person-pills button {
+    flex: 1 1 0; min-width: 0; padding: 4px 2px; min-height: 48px; border-radius: 8px; border: 1px solid var(--gray-300);
+    background: var(--input-bg); color: var(--gray-700); font: 600 14px var(--font); cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  }
+  .person-pills button small { font-size: 10.5px; font-weight: 500; color: var(--gray-500); }
+  .person-pills button[aria-checked="true"] { border-color: var(--primary); background: var(--primary-light); color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
+  .person-pills button[aria-checked="true"] small { color: var(--primary); }
+  .check-row { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; font-weight: 400 !important; font-size: 13px !important; }
+  .check-row input { width: 20px; height: 20px; flex-shrink: 0; cursor: pointer; accent-color: var(--primary); }
+  .more-options summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--primary); min-height: 40px; display: flex; align-items: center; gap: 6px; }
+  .more-options[open] summary { margin-bottom: 8px; }
+  .invalid, input.invalid, select.invalid { border-color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(220,38,38,0.15) !important; }
+  .form-error { display: none; color: var(--danger); font-size: 13px; font-weight: 600; margin-top: 12px; }
+  .form-error.show { display: block; }
+  @keyframes flashField { 0% { box-shadow: 0 0 0 4px rgba(37,99,235,0.55); } 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0); } }
+  .flash { animation: flashField 1.4s ease-out; }
+  .notice .btn { margin-top: 8px; }
+  .modal:focus { outline: none; }
+
+  /* ── Co-parent deduction itemisation ── */
+  .ded-table td, .ded-table th { font-size: 12.5px; }
+  .ded-table tr.later td { color: var(--gray-500); }
+  .ded-table .partial { font-size: 11px; color: var(--gray-500); display: block; }
+  #statementText { width: 100%; min-height: 260px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+
+  /* ── LPFSA breakdown ── */
+  .lp-card { grid-column: span 3; }
+  @media (max-width: 900px) { .lp-card { grid-column: 1 / -1; } }
+  .lp-bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--gray-100); margin: 10px 0 14px; }
+  .lp-bar span { display: block; height: 100%; }
+  .lp-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .lp-legend .k { font-size: 12px; color: var(--gray-500); display: flex; align-items: center; gap: 6px; font-weight: 500; }
+  .lp-legend .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex-shrink: 0; }
+  .lp-legend .v { font-size: 19px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .lp-legend .s { font-size: 11.5px; color: var(--gray-500); }
+  .amber { color: var(--warning) !important; }
+  .redtext { color: var(--danger) !important; }
+
+  /* ── Accessibility: focus, tap targets, dark-mode notices ── */
+  button:focus-visible, a:focus-visible, summary:focus-visible, .stat-link:focus-visible, label.btn:focus-within {
+    outline: 2px solid var(--primary); outline-offset: 2px;
+  }
+  td .actions button { min-width: 32px; min-height: 32px; display: inline-flex; align-items: center; justify-content: center; }
+  @media (max-width: 700px) {
+    td .actions button { min-width: 44px; min-height: 44px; }
+    .btn-sm { min-height: 40px; }
+  }
+  body.dark .notice-blue   { color: #bfdbfe; }
+  body.dark .notice-green  { color: #bbf7d0; }
+  body.dark .notice-yellow { color: #fde68a; }
+  body.dark .notice-red    { color: #fecaca; }
+  body.dark .notice a { color: inherit; text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -669,7 +748,10 @@
 <!-- Mobile top bar (visible only on small screens) -->
 <div class="mobile-topbar">
   <button class="hamburger" onclick="toggleSidebar()"><i data-lucide="menu" class="licon" style="width:20px;height:20px"></i></button>
-  <span class="title">Medical Expense Tracker</span>
+  <button class="title-wrap" onclick="onSyncTap()" aria-label="Save status">
+    <span class="title">Medical Expense Tracker</span>
+    <span id="mobSync" aria-live="polite"></span>
+  </button>
   <button class="mob-theme-btn" onclick="toggleTheme()" id="mobThemeBtn"><i data-lucide="moon" class="licon" style="width:18px;height:18px"></i></button>
 </div>
 <div id="sidebarOverlay" onclick="closeSidebar()"></div>
@@ -679,32 +761,31 @@
   <div class="logo">
     <div>
       <h2>Medical Expense<br>Tracker</h2>
-      <p id="currentYear">2026</p>
     </div>
     <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Toggle light/dark mode"><i data-lucide="moon" class="licon" style="width:18px;height:18px"></i></button>
   </div>
   <nav>
     <div class="sidebar-section">Overview</div>
-    <a onclick="showPage('dashboard')" id="nav-dashboard" class="active">
+    <a href="#" onclick="showPage('dashboard');return false" id="nav-dashboard" class="active">
       <span class="icon"><i data-lucide="layout-dashboard" class="licon" style="width:16px;height:16px"></i></span> Dashboard
     </a>
 
     <div class="sidebar-section">Tracking</div>
-    <a onclick="showPage('hsa')" id="nav-hsa">
+    <a href="#" onclick="showPage('hsa');return false" id="nav-hsa">
       <span class="icon"><i data-lucide="landmark" class="licon" style="width:16px;height:16px"></i></span> HSA Tracker
     </a>
-    <a onclick="showPage('children')" id="nav-children">
+    <a href="#" onclick="showPage('children');return false" id="nav-children">
       <span class="icon"><i data-lucide="users" class="licon" style="width:16px;height:16px"></i></span> Children's Expenses
     </a>
-    <a onclick="showPage('payments')" id="nav-payments">
+    <a href="#" onclick="showPage('payments');return false" id="nav-payments">
       <span class="icon"><i data-lucide="credit-card" class="licon" style="width:16px;height:16px"></i></span> Payment Calculator
     </a>
-    <a onclick="showPage('lpfsa')" id="nav-lpfsa">
+    <a href="#" onclick="showPage('lpfsa');return false" id="nav-lpfsa">
       <span class="icon"><i data-lucide="glasses" class="licon" style="width:16px;height:16px"></i></span> <span class="lpfsa-label">LPFSA 2027</span>
     </a>
 
     <div class="sidebar-section">Settings</div>
-    <a onclick="openSettings()" id="nav-settings">
+    <a href="#" onclick="openSettings();return false" id="nav-settings">
       <span class="icon"><i data-lucide="sheet" class="licon" style="width:16px;height:16px"></i></span> Google Sheet
     </a>
   </nav>
@@ -712,7 +793,7 @@
     style="background:none;border:none;color:#94a3b8;font-size:12px;padding:8px 16px;cursor:pointer;text-align:left;">
     <i data-lucide="x" class="licon" style="width:14px;height:14px"></i> Close menu
   </button>
-  <div class="sync-status" id="syncStatus" onclick="openSettings()" style="cursor:pointer"><i data-lucide="circle" class="licon" style="width:13px;height:13px"></i> Not signed in</div>
+  <button class="sync-status" id="syncStatus" onclick="onSyncTap()" style="cursor:pointer" aria-live="polite"><i data-lucide="circle" class="licon" style="width:13px;height:13px"></i> Not signed in</button>
   <button class="add-btn" onclick="openAddExpense()">
     <i data-lucide="plus" class="licon" style="width:14px;height:14px"></i> Add Expense
   </button>
@@ -727,14 +808,7 @@
     <div class="page-header">
       <div>
         <h1>Dashboard</h1>
-        <p>Overview of all medical expense tracking</p>
-      </div>
-      <div id="exportImport">
-        <button class="btn btn-outline btn-sm" onclick="exportData()"><i data-lucide="download" class="licon" style="width:13px;height:13px"></i> Export JSON</button>
-        <label class="btn btn-outline btn-sm" style="cursor:pointer;">
-          <i data-lucide="upload" class="licon" style="width:13px;height:13px"></i> Import JSON <input type="file" accept=".json" onchange="importData(event)" style="display:none">
-        </label>
-        <button class="btn btn-outline btn-sm" onclick="exportCSV()"><i data-lucide="file-text" class="licon" style="width:13px;height:13px"></i> Export CSV</button>
+        <p>What you're owed, what to pay, and what's left to use</p>
       </div>
     </div>
 
@@ -914,6 +988,13 @@
           <h3>Calculation Breakdown</h3>
           <div id="calcBreakdown"></div>
         </div>
+        <div class="payment-card">
+          <h3 style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+            What's in this deduction
+            <button class="btn btn-outline btn-sm" onclick="copyStatement()"><i data-lucide="clipboard-copy" class="licon" style="width:13px;height:13px"></i> Copy statement for co-parent</button>
+          </h3>
+          <div id="deductionItems"></div>
+        </div>
       </div>
       <div>
         <div class="payment-card">
@@ -924,7 +1005,7 @@
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Date</th><th>Check Wrote</th><th>27% Deducted</th><th>Notes</th><th></th></tr>
+                <tr><th>Date</th><th>Check Wrote</th><th>27% Deducted</th><th>Still Owed After</th><th>Notes</th><th></th></tr>
               </thead>
               <tbody id="paymentHistBody"></tbody>
               <tfoot id="paymentHistFoot"></tfoot>
@@ -992,66 +1073,65 @@
   <div class="modal">
     <h2 id="addExpenseTitle">Add Medical Expense</h2>
     <div class="form-grid">
-      <div class="form-group">
-        <label>Date of Expense *</label>
-        <input type="date" id="expDate">
-      </div>
-      <div class="form-group">
-        <label>Person *</label>
-        <select id="expPerson">
-          <option value="">— Select —</option>
-          <option value="David">David (child)</option>
-          <option value="Coraline">Coraline (child)</option>
-          <option value="Erik">Erik (parent)</option>
-          <option value="Wendy">Wendy (parent)</option>
-        </select>
-      </div>
       <div class="form-group full">
-        <label>Provider / Description *</label>
-        <input type="text" id="expProvider" placeholder="e.g. pharmacy, clinic, dentist">
+        <label id="expPersonLabel">Who was it for? *</label>
+        <input type="hidden" id="expPerson">
+        <div class="person-pills" id="expPersonPills" role="radiogroup" aria-labelledby="expPersonLabel"></div>
       </div>
       <div class="form-group">
-        <label>Amount ($) *</label>
-        <input type="number" id="expAmount" step="0.01" min="0" placeholder="0.00">
+        <label for="expAmount">Amount ($) *</label>
+        <input type="number" id="expAmount" inputmode="decimal" step="0.01" min="0" placeholder="0.00">
       </div>
       <div class="form-group">
-        <label>Receipt Name / File</label>
-        <input type="text" id="expReceipt" placeholder="e.g. CVS_David_20260315">
+        <label for="expProvider">Provider / Description *</label>
+        <input type="text" id="expProvider" placeholder="e.g. pharmacy, clinic, dentist" autocomplete="off">
       </div>
       <div class="form-group">
-        <label>Category</label>
+        <label for="expCategory">Category</label>
         <select id="expCategory" onchange="onCategoryChange('exp')">
           <option value="">— Select —</option>
           <option>Medical</option><option>Dental</option><option>Vision</option><option>Prescription</option><option>Other</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Reimburse From</label>
+        <label for="expAccount">Reimburse From</label>
         <select id="expAccount" onchange="updateExpensePreview()">
           <option value="HSA">HSA</option>
           <option value="LPFSA" class="lpfsa-label">LPFSA 2027</option>
           <option value="None">None (not reimbursed)</option>
         </select>
       </div>
-      <div class="form-group full">
-        <label>Notes</label>
-        <textarea id="expNotes" placeholder="Optional details..."></textarea>
+      <div class="form-group">
+        <label for="expDate">Date of Expense *</label>
+        <input type="date" id="expDate">
+      </div>
+      <div class="form-group full" id="expExclude27Row" style="display:none">
+        <label class="check-row">
+          <input type="checkbox" id="expExclude27" onchange="updateExpensePreview()">
+          <span>Skip the co-parent's 27% for this one</span>
+        </label>
       </div>
       <div class="form-group full">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400">
-          <input type="checkbox" id="expHistorical" style="width:15px;height:15px;cursor:pointer;flex-shrink:0">
-          <span>Reference only <span style="color:var(--gray-500)">(prior year — visible in tables but won't affect the HSA / LPFSA balance)</span></span>
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400;margin-top:6px">
-          <input type="checkbox" id="expExclude27" onchange="updateExpensePreview()" style="width:15px;height:15px;cursor:pointer;flex-shrink:0">
-          <span>Don't charge the co-parent 27% <span style="color:var(--gray-500)">(children only)</span></span>
-        </label>
+        <details class="more-options" id="expMore">
+          <summary>Receipt name &amp; notes</summary>
+          <div class="form-grid">
+            <div class="form-group full">
+              <label for="expReceipt">Receipt Name / File</label>
+              <input type="text" id="expReceipt" placeholder="e.g. CVS_David_20260315" autocomplete="off">
+            </div>
+            <div class="form-group full">
+              <label for="expNotes">Notes</label>
+              <textarea id="expNotes" placeholder="Optional details..."></textarea>
+            </div>
+          </div>
+        </details>
       </div>
     </div>
     <div id="expPreview" class="notice notice-blue" style="display:none;margin-top:16px"></div>
+    <div class="form-error" id="expError" role="alert"></div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modalAddExpense')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveExpense()">Save Expense</button>
+      <button class="btn btn-primary" id="expSaveBtn" onclick="saveExpense()">Save Expense</button>
     </div>
   </div>
 </div>
@@ -1070,7 +1150,7 @@
       </div>
       <div class="form-group">
         <label>Amount ($) *</label>
-        <input type="number" id="pbAmount" step="0.01" min="0" placeholder="0.00">
+        <input type="number" id="pbAmount" inputmode="decimal" step="0.01" min="0" placeholder="0.00">
       </div>
       <div class="form-group full">
         <label>From Account *</label>
@@ -1084,6 +1164,7 @@
         <input type="text" id="pbNotes" placeholder="e.g. HSA withdrawal — Jan/Feb expenses">
       </div>
     </div>
+    <div class="form-error" id="pbError" role="alert"></div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modalAddPayback')">Cancel</button>
       <button class="btn btn-success" onclick="savePayback()">Save Reimbursement</button>
@@ -1105,7 +1186,7 @@
       </div>
       <div class="form-group">
         <label>Amount Deducted (27% owed)</label>
-        <input type="number" id="pmtDeducted" step="0.01" min="0" placeholder="0.00" oninput="updatePaymentPreview()">
+        <input type="number" id="pmtDeducted" inputmode="decimal" step="0.01" min="0" placeholder="0.00" oninput="updatePaymentPreview()">
       </div>
       <div class="form-group">
         <label>Actual Check Amount ($)</label>
@@ -1121,6 +1202,7 @@
       </div>
     </div>
     <div id="pmtPreview" class="notice notice-blue" style="margin-top:8px"></div>
+    <div class="form-error" id="pmtError" role="alert"></div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modalRecordPayment')">Cancel</button>
       <button class="btn btn-success" onclick="savePayment()">Record Payment</button>
@@ -1153,7 +1235,7 @@
       </div>
       <div class="form-group">
         <label>Amount ($) *</label>
-        <input type="number" id="editExpAmount" step="0.01" min="0">
+        <input type="number" id="editExpAmount" inputmode="decimal" step="0.01" min="0">
       </div>
       <div class="form-group">
         <label>Receipt Name</label>
@@ -1179,17 +1261,18 @@
         <textarea id="editExpNotes"></textarea>
       </div>
       <div class="form-group full">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400">
-          <input type="checkbox" id="editExpHistorical" style="width:15px;height:15px;cursor:pointer;flex-shrink:0">
-          <span>Reference only <span style="color:var(--gray-500)">(prior year — visible in tables but won't affect the HSA / LPFSA balance)</span></span>
+        <label class="check-row">
+          <input type="checkbox" id="editExpHistorical">
+          <span>Reference only <span style="color:var(--gray-500)">— shown in tables but not counted in the HSA / LPFSA balance (used for imported history)</span></span>
         </label>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400;margin-top:6px">
-          <input type="checkbox" id="editExpExclude27" style="width:15px;height:15px;cursor:pointer;flex-shrink:0">
-          <span>Don't charge the co-parent 27% <span style="color:var(--gray-500)">(children only)</span></span>
+        <label class="check-row">
+          <input type="checkbox" id="editExpExclude27">
+          <span>Skip the co-parent's 27% for this one <span style="color:var(--gray-500)">(children only)</span></span>
         </label>
       </div>
     </div>
     <div id="editExpPreview" class="notice notice-yellow" style="display:none;margin-top:16px"></div>
+    <div class="form-error" id="editExpError" role="alert"></div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modalEditExpense')">Cancel</button>
       <button class="btn btn-primary" onclick="updateExpense()">Save Changes</button>
@@ -1197,6 +1280,36 @@
   </div>
 </div>
 
+
+<!-- LPFSA election -->
+<div class="modal-bg" id="modalElection">
+  <div class="modal" style="max-width:420px">
+    <h2 id="elecTitle">LPFSA starting balance</h2>
+    <p id="elecHelp" style="font-size:13px;color:var(--gray-500);margin-bottom:14px"></p>
+    <input type="hidden" id="elecYear">
+    <div class="form-group">
+      <label for="elecAmount">Election ($)</label>
+      <input type="number" id="elecAmount" inputmode="decimal" step="0.01" min="0" placeholder="e.g. 1500" onkeydown="if(event.key==='Enter')saveElection()">
+    </div>
+    <div class="form-error" id="elecError" role="alert"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalElection')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveElection()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Statement for co-parent (fallback when copying is blocked) -->
+<div class="modal-bg" id="modalStatement">
+  <div class="modal">
+    <h2>Statement for co-parent</h2>
+    <p style="font-size:13px;color:var(--gray-500);margin-bottom:10px">Select all of this text and copy it into a message.</p>
+    <textarea id="statementText" readonly></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('modalStatement')">Done</button>
+    </div>
+  </div>
+</div>
 
 <!-- Google Sheet Settings Modal -->
 <div class="modal-bg" id="modalSettings">
@@ -1227,6 +1340,7 @@ const SHEET_FILE_NAME  = 'Medical Tracker Data';
 const CACHE_KEY   = 'medTracker_v3_cache';
 const QUEUE_KEY   = 'medTracker_v3_pending';
 const SHEETID_KEY = 'medTracker_v3_sheetId';
+const LASTSYNC_KEY = 'medTracker_v3_lastSync';
 
 const PEOPLE     = ['David', 'Coraline', 'Erik', 'Wendy'];
 const ACCOUNTS   = ['HSA', 'LPFSA', 'None'];
@@ -1309,7 +1423,9 @@ function numOr(v, d) { const n = parseFloat(v); return isNaN(n) ? d : n; }
 
 // Every change in the app goes through here: applied locally at once,
 // then written to the sheet.
+let saveNotice = false;   // a save is in flight; tell the user how it ended
 function commit(op) {
+  saveNotice = true; toastBase = '';
   PENDING.push(op);
   persistLocal();
   DATA = buildView();
@@ -1352,14 +1468,24 @@ function hasValidToken() { return !!accessToken && Date.now() < tokenExpiresAt -
 
 // interactive=true may open Google's popup, so it must be called directly
 // from a click (before any await), or the browser blocks the popup.
-function getToken(interactive) {
-  if (hasValidToken()) return Promise.resolve(accessToken);
+function getToken(interactive, force) {
+  if (!force && hasValidToken()) return Promise.resolve(accessToken);
   if (!interactive) return Promise.reject(new AuthNeeded());
   if (!initGoogle()) return Promise.reject(new Error('Google sign-in is still loading — try again in a moment'));
   return new Promise((resolve, reject) => {
     tokenWaiters.push({ resolve, reject });
     if (tokenWaiters.length === 1) tokenClient.requestAccessToken({ prompt: '' });
   });
+}
+
+function friendlyError(e) {
+  const m = e?.message || String(e);
+  if (e?.status === 404) return 'The spreadsheet was moved or deleted. Open the Google Sheet settings to reconnect.';
+  if (e?.status === 403) return "Google says this account can't edit the spreadsheet.";
+  if (e?.status === 429) return 'Google is limiting requests right now — wait a minute and try again.';
+  if (e?.status >= 500) return 'Google Sheets is having trouble right now — try again in a few minutes.';
+  if (e instanceof TypeError || /failed to fetch|network/i.test(m)) return "You're offline. Your changes are kept on this device and will save when you reconnect.";
+  return m;
 }
 
 class AuthNeeded extends Error { constructor() { super('Sign in to Google needed'); this.authNeeded = true; } }
@@ -1373,7 +1499,7 @@ function signOut(clearDevice) {
   accessToken = null; tokenExpiresAt = 0;
   if (clearDevice) {
     if (PENDING.length && !confirm(`${PENDING.length} change(s) haven't been saved to your sheet yet and will be lost. Continue?`)) return;
-    [CACHE_KEY, QUEUE_KEY, SHEETID_KEY].forEach(k => localStorage.removeItem(k));
+    [CACHE_KEY, QUEUE_KEY, SHEETID_KEY, LASTSYNC_KEY].forEach(k => localStorage.removeItem(k));
     SHEET_DATA = emptyData(); PENDING = []; DATA = buildView();
     renderPage(currentPage());
   }
@@ -1691,11 +1817,16 @@ function flushPending(interactive) {
       console.warn('Sync failed:', e);
       // Sign-in problems (expired, popup closed/blocked) → "reconnect" state, not a sync error
       const signInProblem = e.authNeeded || !hasValidToken();
-      lastSyncError = e.authNeeded ? '' : e.message;
-      setSyncStatus(signInProblem ? 'signin' : 'error', e.message);
+      lastSyncError = e.authNeeded ? '' : friendlyError(e);
+      setSyncStatus(signInProblem ? 'signin' : 'error', friendlyError(e));
     } finally {
       syncing = false;
       renderAuthBanner(lastSyncError);
+      if (saveNotice && toastBase && !(syncAgain && hasValidToken())) {
+        saveNotice = false;
+        const saved = !PENDING.length && !lastSyncError && hasValidToken();
+        showToast(saved ? `${toastBase} · saved to your sheet ✓` : `${toastBase} · not saved to your sheet yet — tap Reconnect`, saved ? 3000 : 6000, true);
+      }
       if (syncAgain && hasValidToken()) { syncAgain = false; flushPending(false); }
       syncAgain = false;
     }
@@ -1707,6 +1838,7 @@ async function reloadFromSheet() {
   SHEET_DATA = data;
   SHEET_WARNINGS = warnings;
   persistLocal();
+  try { localStorage.setItem(LASTSYNC_KEY, String(Date.now())); } catch(e) {}
   DATA = buildView();
   setSyncStatus('synced');
   renderPage(currentPage());
@@ -1714,26 +1846,59 @@ async function reloadFromSheet() {
 
 function syncNow() { flushPending(true); }
 
+let syncState = 'offline';
+function lastSyncTime() {
+  const t = Number(localStorage.getItem(LASTSYNC_KEY) || 0);
+  if (!t) return '';
+  const d = new Date(t), today = new Date().toDateString() === d.toDateString();
+  return (today ? '' : d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }) + ' ') +
+         d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
 function setSyncStatus(status, msg) {
-  const el = document.getElementById('syncStatus');
-  if (!el) return;
-  el.title = msg || '';
-  if (status === 'syncing') {
-    el.innerHTML = `${li('refresh-cw',13)} Syncing…`;
-    el.style.color = '#94a3b8';
-  } else if (status === 'synced') {
-    const t = new Date().toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit'});
-    el.innerHTML = `${li('check-circle',13)} Synced ${t}`;
-    el.style.color = '#4ade80';
-  } else if (status === 'error') {
-    el.innerHTML = `${li('x-circle',13)} Sync error`;
-    el.style.color = '#f87171';
-  } else {
-    el.innerHTML = PENDING.length ? `${li('cloud-off',13)} ${PENDING.length} unsaved change${PENDING.length > 1 ? 's' : ''}` : `${li('circle',13)} Not signed in`;
-    el.style.color = PENDING.length ? '#fbbf24' : '#64748b';
-  }
+  syncState = status;
+  const n = PENDING.length, ch = `change${n > 1 ? 's' : ''}`;
+  let icon, text, color;
+  if (status === 'syncing')       { icon = 'refresh-cw';   text = 'Saving…';                                  color = '#94a3b8'; }
+  else if (status === 'synced')   { icon = 'check-circle'; text = `Saved ${lastSyncTime()}`;                  color = '#4ade80'; }
+  else if (status === 'expiring') { icon = 'clock';        text = 'Sign-in ends soon — tap to stay signed in'; color = '#fbbf24'; }
+  else if (status === 'error')    { icon = 'x-circle';     text = n ? `${n} ${ch} not saved — tap for details` : "Couldn't sync — tap for details"; color = '#f87171'; }
+  else if (n)                     { icon = 'cloud-off';    text = `${n} ${ch} not saved — tap to reconnect`;  color = '#fbbf24'; }
+  else                            { icon = 'log-in';       text = 'Not signed in — tap to sign in';           color = '#94a3b8'; }
+  ['syncStatus', 'mobSync'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.title = msg || '';
+    el.innerHTML = `${li(icon, 13)} ${text}`;
+    el.style.color = color;
+  });
   initIcons();
 }
+
+// Tapping the status does the obvious next thing (a click, so Google's popup is allowed)
+function onSyncTap() {
+  if (syncState === 'expiring') return renewSignIn();
+  if (!hasValidToken()) return signIn();
+  if (syncState === 'error') return syncNow();
+  openSettings();
+}
+
+function renewSignIn() {
+  getToken(true, true).then(() => { setSyncStatus('synced'); flushPending(false); })
+    .catch(e => { showToast(e.message); setSyncStatus(hasValidToken() ? 'expiring' : 'signin'); renderAuthBanner(); });
+}
+
+// Watch the ~1 hour token: warn 5 minutes before it ends, and show the
+// signed-out state as soon as it ends (not only at the next save).
+setInterval(() => {
+  if (syncing || !accessToken) return;
+  const left = tokenExpiresAt - Date.now();
+  if (!hasValidToken()) {
+    if (syncState === 'synced' || syncState === 'expiring') { setSyncStatus('signin'); renderAuthBanner(); }
+  } else if (left < 5 * 60000 && syncState === 'synced') {
+    setSyncStatus('expiring');
+  }
+}, 20000);
 
 // Banner at the top of every page: sign-in prompt, unsaved changes, sheet warnings.
 function renderAuthBanner(errMsg) {
@@ -1747,7 +1912,7 @@ function renderAuthBanner(errMsg) {
       ? `<strong>${pending} change${pending > 1 ? 's' : ''} saved on this device only.</strong> Reconnect to Google to save ${pending > 1 ? 'them' : 'it'} to your sheet.`
       : firstTime
         ? `<strong>Sign in with Google</strong> to create or open your tracker spreadsheet.`
-        : `Showing your last synced data. <strong>Sign in with Google</strong> to load the latest and make changes.`;
+        : `Showing your data as of <strong>${lastSyncTime() || 'your last sign-in'}</strong>. Sign in with Google to load the latest and save changes.`;
     parts.push(`<div class="notice ${pending ? 'notice-yellow' : 'notice-blue'}" style="margin-bottom:16px;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
       <span>${li(pending ? 'cloud-off' : 'log-in', 15)} ${text}${errMsg ? `<br><span style="font-size:12px;color:var(--danger)">${esc(errMsg)}</span>` : ''}</span>
       <button class="btn btn-primary btn-sm" onclick="signIn()">${pending ? 'Reconnect' : 'Sign in with Google'}</button>
@@ -1771,6 +1936,15 @@ function renderAuthBanner(errMsg) {
 
 // ─── Settings modal ───
 
+function describeOp(op) {
+  if (op.kind === 'setting') return `Set "${op.key}" to ${op.value === '' ? '(blank)' : op.value}`;
+  const name = { expenses: 'expense', reimbursements: 'reimbursement', childPayments: 'co-parent payment' }[op.table] || op.table;
+  if (op.kind === 'delete') return `Delete a ${name}`;
+  const r = op.record, exists = (SHEET_DATA[op.table] || []).some(x => x.id === r.id);
+  const amt = r.amount ?? r.actualAmount;
+  return `${exists ? 'Update' : 'Add'} ${name}: ${fmtDate(r.date)}${r.person ? ' · ' + r.person : ''}${r.provider ? ' · ' + r.provider : ''}${amt !== undefined ? ' · ' + fmt$(amt) : ''}`;
+}
+
 function openSettings() {
   const signedIn = hasValidToken();
   const s = DATA.settings;
@@ -1780,16 +1954,23 @@ function openSettings() {
       <span class="calc-value">${signedIn ? `<span class="amount-green">Signed in</span>` : 'Not signed in'}</span></div>
     <div class="calc-row"><span class="calc-label">Spreadsheet</span>
       <span class="calc-value">${SHEET_ID ? `<a href="${sheetUrl()}" target="_blank" rel="noopener">${SHEET_FILE_NAME} ↗</a>` : '—'}</span></div>
+    <div class="calc-row"><span class="calc-label">Last saved</span><span class="calc-value">${lastSyncTime() || '—'}</span></div>
     <div class="calc-row"><span class="calc-label">Unsaved changes on this device</span><span class="calc-value">${PENDING.length}</span></div>
+    ${PENDING.length ? `<ul style="margin:0 0 8px 18px;font-size:12.5px;color:var(--gray-600)">${PENDING.map(op => `<li>${esc(describeOp(op))}</li>`).join('')}</ul>` : ''}
     <div class="calc-row"><span class="calc-label">Co-parent share</span><span class="calc-value">${(RATE * 100).toFixed(0)}%</span></div>
     <div class="calc-row"><span class="calc-label">Scheduled payment</span><span class="calc-value">${fmt$(SCHEDULED_PMT)}</span></div>
     <div class="calc-row"><span class="calc-label">Children opening balance (27% owed / paid)</span>
       <span class="calc-value">${fmt$(numOr(s['Children opening 27% owed'], 0))} / ${fmt$(numOr(s['Children opening paid'], 0))}</span></div>
     ${elections.map(k => `<div class="calc-row"><span class="calc-label">${esc(k)}</span><span class="calc-value">${s[k] === '' ? 'not set' : fmt$(numOr(s[k], 0))}</span></div>`).join('')}
     <p style="font-size:12px;color:var(--gray-500);margin-top:10px">These values come from the <strong>Settings</strong> tab of your sheet — edit them there.</p>
-    <div class="notice notice-blue" style="margin-top:16px;font-size:12.5px;display:block">
-      ${li('upload', 14)} <strong>Moving from the old tracker?</strong> On the old site click <em>Export JSON</em>, then use <em>Import JSON</em> on this site's Dashboard. It replaces everything in the sheet.
-    </div>`;
+    <h3 style="font-size:13px;font-weight:700;margin:18px 0 8px;color:var(--gray-700)">Backup &amp; import</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm" onclick="exportData()">${li('download', 13)} Export JSON</button>
+      <button class="btn btn-outline btn-sm" onclick="exportCSV()">${li('file-text', 13)} Export CSV</button>
+      <label class="btn btn-outline btn-sm" style="cursor:pointer">${li('upload', 13)} Import JSON
+        <input type="file" accept=".json" onchange="importData(event)" style="position:absolute;opacity:0;width:1px;height:1px"></label>
+    </div>
+    <p style="font-size:12px;color:var(--gray-500);margin-top:8px">Import <strong>replaces everything</strong> in your sheet. Moving from the old tracker? Export JSON there, then import it here.</p>`;
   document.getElementById('settingsFooter').innerHTML = signedIn
     ? `<button class="btn btn-outline" onclick="signOut(true)">Sign out &amp; clear this device</button>
        <button class="btn btn-outline" onclick="signOut(false)">Sign out</button>
@@ -1840,6 +2021,18 @@ function initIcons() {
 function fmt$(n) {
   if (n === null || n === undefined || isNaN(n)) return '—';
   return '$' + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+// Money with a minus sign when negative (fmt$ shows the absolute value)
+function signed$(n) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return (n < -0.005 ? '−' : '') + fmt$(n);
+}
+
+// Local calendar date as YYYY-MM-DD (toISOString is UTC, which is "tomorrow" on a US evening)
+function isoLocal(d) {
+  d = d || new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function fmtDate(d) {
@@ -1929,6 +2122,30 @@ function calcChildren() {
   return { total: newTotal, owed27, paid, balance, hasHistory: ob.total27pct > 0, ob };
 }
 
+// The co-parent's shares not yet deducted, oldest first. Deductions pay off the
+// oldest shares first (the carried-in opening balance before any row).
+// Each item: { date, e (expense, or null for the opening balance), share, left, inCheck }
+function outstandingShares() {
+  const c = calcChildren();
+  const items = [];
+  if (c.ob.total27pct > 0.005) items.push({ date: '', e: null, share: c.ob.total27pct });
+  DATA.expenses.filter(e => isKid(e.person) && !e.exclude27)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .forEach(e => items.push({ date: e.date, e, share: e.amount * RATE }));
+  let credit = c.paid;
+  const out = [];
+  for (const it of items) {
+    const used = Math.min(Math.max(credit, 0), it.share);
+    credit -= used;
+    const left = it.share - used;
+    if (left > 0.005) out.push({ ...it, left });
+  }
+  // Split across the next check (capped at the scheduled amount) and later checks
+  let room = Math.max(0, Math.min(c.balance, SCHEDULED_PMT));
+  out.forEach(it => { it.inCheck = Math.min(it.left, room); room -= it.inCheck; });
+  return out;
+}
+
 function nextCheckAmount() {
   const { balance } = calcChildren();
   const check = Math.max(0, SCHEDULED_PMT - balance);
@@ -1948,6 +2165,28 @@ function nextPaymentDate() {
 //  RENDER: DASHBOARD
 // ═══════════════════════════════════════════════════════════
 
+function dashLPFSACard() {
+  const year = lpfsaCurrentYear(), cur = String(new Date().getFullYear());
+  const l = calcLPFSA(year);
+  let label = `LPFSA ${year} Balance`, value, sub;
+  if (cur > year && l.pending <= 0.005) {
+    label = `LPFSA ${cur}`; value = '—'; sub = `No LPFSA set up for ${cur}`;
+  } else if (l.election === null) {
+    value = '—'; sub = 'Tap to set your starting balance';
+  } else {
+    value = signed$(l.balance);
+    sub = cur < year ? `Starts 1/1/${year}`
+        : cur > year ? `Plan year ended · ${fmt$(l.pending)} waiting to be reimbursed`
+        : l.pending > 0.005 ? `${fmt$(l.pending)} waiting to be reimbursed`
+        : `${fmt$(Math.max(0, l.remaining))} left to use by 12/31`;
+  }
+  return `<div class="stat-card stat-link" role="link" tabindex="0" onclick="showPage('lpfsa')" onkeydown="if(event.key==='Enter')showPage('lpfsa')">
+      <div class="label">${label}</div>
+      <div class="value blue">${value}</div>
+      <div class="sub">${sub}</div>
+    </div>`;
+}
+
 function renderDashboard() {
   // Populate and apply dashboard year filter
   const curYearStr = String(new Date().getFullYear());
@@ -1966,30 +2205,26 @@ function renderDashboard() {
   const { check } = nextCheckAmount();
   const nd = nextPaymentDate();
 
-  const yearExpenses = dashYear ? DATA.expenses.filter(e => e.date?.startsWith(dashYear)) : DATA.expenses;
-  const yearTotal = yearExpenses.reduce((s,e) => s + e.amount, 0);
-  const yearLabel2 = dashYear ? dashYear : 'All time';
+  const { deduct: nextDeduct } = nextCheckAmount();
+  const ndShort = nd.toLocaleDateString('en-US', {month:'short',day:'numeric'});
 
+  // Ordered by what you act on: the check, then money owed to you, then money to use
   document.getElementById('dashStats').innerHTML = `
-    <div class="stat-card">
-      <div class="label">Total Medical Expenses</div>
-      <div class="value blue">${fmt$(yearTotal)}</div>
-      <div class="sub">${yearExpenses.length} entries · ${yearLabel2}</div>
+    <div class="stat-card stat-link" role="link" tabindex="0" onclick="showPage('payments')" onkeydown="if(event.key==='Enter')showPage('payments')">
+      <div class="label">Next Check to Co-Parent</div>
+      <div class="value blue">${fmt$(check)}</div>
+      <div class="sub">Due ${ndShort} · ${nextDeduct > 0.005 ? `${fmt$(nextDeduct)} deducted` : 'no deduction'}</div>
     </div>
-    <div class="stat-card">
-      <div class="label">HSA Balance Owed to You</div>
-      <div class="value ${hsa.balance > 0 ? 'red' : 'green'}">${fmt$(hsa.balance)}</div>
+    <div class="stat-card stat-link" role="link" tabindex="0" onclick="showPage('hsa')" onkeydown="if(event.key==='Enter')showPage('hsa')">
+      <div class="label">HSA Owes You</div>
+      <div class="value blue">${signed$(hsa.balance)}</div>
       <div class="sub">${fmt$(hsa.reimbursed)} reimbursed so far</div>
     </div>
-    <div class="stat-card">
-      <div class="label">Co-Parent's 27% Balance</div>
-      <div class="value ${child.balance > 0 ? 'red' : 'green'}">${fmt$(child.balance)}</div>
-      <div class="sub">${fmt$(child.owed27)} total 27% owed</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Next Check to Write</div>
-      <div class="value blue">${fmt$(check)}</div>
-      <div class="sub">Due ${nd.toLocaleDateString('en-US', {month:'short',day:'numeric'})}</div>
+    ${dashLPFSACard()}
+    <div class="stat-card stat-link" role="link" tabindex="0" onclick="showPage('children')" onkeydown="if(event.key==='Enter')showPage('children')">
+      <div class="label">Co-Parent Owes You</div>
+      <div class="value blue">${signed$(child.balance)}</div>
+      <div class="sub">${child.balance < -0.005 ? 'Deducted more than owed' : '27% share not yet deducted'}</div>
     </div>
   `;
 
@@ -2022,8 +2257,8 @@ function renderDashboard() {
       <span class="calc-value">${fmt$(SCHEDULED_PMT)}</span>
     </div>
     <div class="calc-row">
-      <span class="calc-label">Outstanding 27% balance</span>
-      <span class="calc-value amount-red">− ${fmt$(Math.min(balance, SCHEDULED_PMT))}</span>
+      <span class="calc-label">Deducted from this check</span>
+      <span class="calc-value amount-red">− ${fmt$(Math.max(0, Math.min(balance, SCHEDULED_PMT)))}</span>
     </div>
     <div class="calc-row total">
       <span class="calc-label">Write check for</span>
@@ -2532,13 +2767,40 @@ function renderPayments() {
     </div>` : ''}
   `;
 
+  // Itemised: which expenses make up the deduction
+  const items = outstandingShares();
+  const pct = Math.round(RATE * 100);
+  document.getElementById('deductionItems').innerHTML = items.length ? `
+    <div class="table-wrap"><table class="ded-table">
+      <thead><tr><th>Expense</th><th>${pct}% Owed</th><th>This Check</th></tr></thead>
+      <tbody>${items.map(it => `
+        <tr class="${it.inCheck > 0.005 ? '' : 'later'}">
+          <td>${it.e
+            ? `${fmtDate(it.date)} ${personBadge(it.e.person)}<span class="partial">${esc(it.e.provider)} · ${fmt$(it.e.amount)}</span>`
+            : 'Balance carried in from before this tracker'}</td>
+          <td class="amount">${fmt$(it.left)}${it.left < it.share - 0.005 ? `<span class="partial">rest of ${fmt$(it.share)}</span>` : ''}</td>
+          <td class="amount"><strong>${it.inCheck > 0.005 ? fmt$(it.inCheck) : 'next check'}</strong></td>
+        </tr>`).join('')}
+      </tbody>
+      <tfoot><tr><td colspan="2">Deducted from this check</td><td class="amount">${fmt$(deduct)}</td></tr></tfoot>
+    </table></div>`
+    : `<div class="notice notice-green" style="margin:0">${li('check-circle', 15)} <span>Nothing outstanding — every ${pct}% share has been deducted.</span></div>`;
+
   // Payment history
   const payments = [...DATA.childPayments].sort((a,b) => b.date.localeCompare(a.date));
+  // Co-parent balance right after each payment (expenses dated up to that day, minus deductions so far)
+  const kidExp = DATA.expenses.filter(e => isKid(e.person) && !e.exclude27);
+  let paidSoFar = child.ob.paid;
+  const owedAfter = {};
+  [...payments].reverse().forEach(p => {
+    paidSoFar += p.deductedAmount;
+    owedAfter[p.id] = child.ob.total27pct + kidExp.filter(e => e.date <= p.date).reduce((s, e) => s + e.amount * RATE, 0) - paidSoFar;
+  });
   const histBody = document.getElementById('paymentHistBody');
   const histFoot = document.getElementById('paymentHistFoot');
 
   if (payments.length === 0) {
-    histBody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon"><i data-lucide="inbox" class="licon" style="width:38px;height:38px"></i></div><p>No payments recorded yet.</p></div></td></tr>`;
+    histBody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon"><i data-lucide="inbox" class="licon" style="width:38px;height:38px"></i></div><p>No payments recorded yet.</p></div></td></tr>`;
     histFoot.innerHTML = '';
   } else {
     const totalDeducted = payments.reduce((s, p) => s + p.deductedAmount, 0);
@@ -2547,6 +2809,7 @@ function renderPayments() {
         <td>${fmtDate(p.date)}</td>
         <td class="amount"><strong>${fmt$(p.actualAmount)}</strong></td>
         <td class="amount" style="color:var(--warning)">${p.deductedAmount > 0 ? '− ' + fmt$(p.deductedAmount) : '—'}</td>
+        <td class="amount running-balance">${signed$(owedAfter[p.id])}</td>
         <td style="font-size:12px;color:var(--gray-500)">${esc(p.notes)}</td>
         <td>
           <div class="actions">
@@ -2560,6 +2823,7 @@ function renderPayments() {
         <td>Total (${payments.length})</td>
         <td class="amount">${fmt$(payments.reduce((s,p)=>s+p.actualAmount,0))}</td>
         <td class="amount">${fmt$(totalDeducted)}</td>
+        <td class="amount">${signed$(child.balance)}</td>
         <td colspan="2"></td>
       </tr>
     `;
@@ -2567,32 +2831,77 @@ function renderPayments() {
   initIcons();
 }
 
+function statementText() {
+  const { check, deduct } = nextCheckAmount();
+  const c = calcChildren();
+  const pct = Math.round(RATE * 100);
+  const nd = nextPaymentDate().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const lines = [`Children's medical expenses — ${pct}% share`, `For the ${nd} payment`, ''];
+  const inCheck = outstandingShares().filter(it => it.inCheck > 0.005);
+  if (!inCheck.length) lines.push('No medical expenses to deduct this time.');
+  inCheck.forEach(it => {
+    const what = it.e ? `${fmtDate(it.date)}  ${it.e.person}  ${it.e.provider}  ${fmt$(it.e.amount)} × ${pct}%` : 'Balance carried forward';
+    const partial = it.inCheck < it.share - 0.005 ? ` (${fmt$(it.inCheck)} of ${fmt$(it.share)})` : '';
+    lines.push(`• ${what} = ${fmt$(it.inCheck)}${partial}`);
+  });
+  lines.push('', `Scheduled payment:  ${fmt$(SCHEDULED_PMT)}`, `Medical deduction:  − ${fmt$(deduct)}`, `Check amount:       ${fmt$(check)}`);
+  const after = c.balance - deduct;
+  if (after > 0.005) lines.push('', `Still owed after this check: ${fmt$(after)} (carried to the next payment)`);
+  return lines.join('\n');
+}
+
+function copyStatement() {
+  const text = statementText();
+  const fallback = () => {
+    document.getElementById('statementText').value = text;
+    openModal('modalStatement');
+    document.getElementById('statementText').select();
+  };
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text).then(() => showToast('Statement copied — paste it into a text or email'), fallback);
+  } else fallback();
+}
+
 // ═══════════════════════════════════════════════════════════
 //  MODALS: ADD EXPENSE
 // ═══════════════════════════════════════════════════════════
 
 function openAddExpense(context) {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('expDate').value = today;
-  document.getElementById('expPerson').value = '';
-  document.getElementById('expProvider').value = '';
-  document.getElementById('expAmount').value = '';
-  document.getElementById('expReceipt').value = '';
-  document.getElementById('expNotes').value = '';
+  ['expPerson', 'expProvider', 'expAmount', 'expReceipt', 'expNotes'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('expDate').value = isoLocal();
   document.getElementById('expCategory').value = context === 'lpfsa' ? 'Dental' : '';
-  if (context === 'lpfsa' && !lpfsaPlanYears().includes(today.slice(0, 4))) document.getElementById('expDate').value = `${lpfsaPlanYears()[0]}-01-01`;
   document.getElementById('expAccount').value = context === 'lpfsa' ? 'LPFSA' : 'HSA';
-  document.getElementById('expHistorical').checked = false;
   document.getElementById('expExclude27').checked = false;
+  document.getElementById('expMore').open = false;
   document.getElementById('expPreview').style.display = 'none';
+  clearInvalid('modalAddExpense');
+  renderPersonPills();
 
   const titles = { children: 'Add Children\'s Medical Expense', lpfsa: `Add ${lpfsaLabel()} Expense` };
   document.getElementById('addExpenseTitle').textContent = titles[context] || 'Add Medical Expense';
 
-  document.getElementById('expPerson').onchange = updateExpensePreview;
   document.getElementById('expDate').onchange = () => onCategoryChange('exp');
   updateExpensePreview();
   openModal('modalAddExpense');
+}
+
+function renderPersonPills() {
+  const cur = document.getElementById('expPerson').value;
+  document.getElementById('expPersonPills').innerHTML = PEOPLE.map(p => `
+    <button type="button" role="radio" aria-checked="${p === cur}" onclick="pickPerson('${p}')">
+      ${esc(p)}<small>${isKid(p) ? `child · ${Math.round(RATE * 100)}%` : 'parent'}</small>
+    </button>`).join('');
+}
+
+function pickPerson(p) {
+  document.getElementById('expPerson').value = p;
+  renderPersonPills();
+  document.getElementById('expPersonPills').classList.remove('invalid');
+  document.getElementById('expExclude27Row').style.display = isKid(p) ? '' : 'none';
+  if (!isKid(p)) document.getElementById('expExclude27').checked = false;
+  updateExpensePreview();
+  const amt = document.getElementById('expAmount');
+  if (!amt.value) amt.focus();
 }
 
 // Dental/vision dated inside an LPFSA plan year default to the LPFSA.
@@ -2600,7 +2909,10 @@ function onCategoryChange(prefix, accountChanged) {
   const cat = document.getElementById(prefix + 'Category').value;
   const acct = document.getElementById(prefix + 'Account');
   const date = document.getElementById(prefix + 'Date').value;
-  if (!accountChanged && (cat === 'Dental' || cat === 'Vision') && lpfsaPlanYears().includes(date.slice(0, 4)) && acct.value === 'HSA') acct.value = 'LPFSA';
+  if (!accountChanged && (cat === 'Dental' || cat === 'Vision') && lpfsaPlanYears().includes(date.slice(0, 4)) && acct.value === 'HSA') {
+    acct.value = 'LPFSA';
+    acct.classList.remove('flash'); void acct.offsetWidth; acct.classList.add('flash');
+  }
   if (prefix === 'exp') updateExpensePreview(); else updateEditPreview();
 }
 
@@ -2614,21 +2926,42 @@ function lpfsaWarning(account, category, date) {
   return '';
 }
 
+function setExpAccount(v) {
+  const acct = document.getElementById('expAccount');
+  acct.value = v;
+  acct.classList.remove('flash'); void acct.offsetWidth; acct.classList.add('flash');
+  updateExpensePreview();
+}
+
 function updateExpensePreview() {
   const person = document.getElementById('expPerson').value;
   const account = document.getElementById('expAccount').value;
   const category = document.getElementById('expCategory').value;
+  const date = document.getElementById('expDate').value;
   const preview = document.getElementById('expPreview');
-  const warn = lpfsaWarning(account, category, document.getElementById('expDate').value);
-  if (!person && !warn) { preview.style.display = 'none'; return; }
+  const years = lpfsaPlanYears();
+  let warn = lpfsaWarning(account, category, date), fix = '';
+  if (warn && date && !years.includes(date.slice(0, 4)))
+    fix = `<br><button type="button" class="btn btn-outline btn-sm" onclick="setExpAccount('HSA')">Use HSA instead</button>`;
+  // Dental/vision in a plan year booked to the HSA: the FSA money expires, the HSA doesn't
+  let nudge = '';
+  if (account === 'HSA' && (category === 'Dental' || category === 'Vision') && date && years.includes(date.slice(0, 4))) {
+    const left = calcLPFSA(date.slice(0, 4)).remaining;
+    if (left === null || left > 0.005)
+      nudge = `${left === null ? 'You have an' : `You have ${fmt$(left)} left in your`} <strong>${lpfsaLabel(date.slice(0, 4))}</strong> for dental &amp; vision — it doesn't carry over, so use it before the HSA.
+        <br><button type="button" class="btn btn-outline btn-sm" onclick="setExpAccount('LPFSA')">Use ${lpfsaLabel(date.slice(0, 4))}</button>`;
+  }
+  if (!person && !warn && !nudge) { preview.style.display = 'none'; return; }
   const acctName = { HSA: 'HSA Tracking', LPFSA: lpfsaLabel(), None: '' }[account];
-  const where = [acctName, isKid(person) && !document.getElementById('expExclude27').checked ? 'Children\'s Medical Expenses (27% = co-parent\'s share)' : '']
+  const where = [acctName, isKid(person) && !document.getElementById('expExclude27').checked ? `Children's Medical Expenses (${Math.round(RATE * 100)}% = co-parent's share)` : '']
     .filter(Boolean).map(x => `<strong>${x}</strong>`).join(' and ');
   preview.style.display = 'flex';
-  preview.className = warn ? 'notice notice-yellow' : 'notice notice-blue';
+  preview.className = warn || nudge ? 'notice notice-yellow' : 'notice notice-blue';
   preview.innerHTML = warn
-    ? `<i data-lucide="alert-triangle" class="licon" style="width:15px;height:15px"></i> <span>${warn}</span>`
-    : `<i data-lucide="info" class="licon" style="width:15px;height:15px"></i> <span>${where ? `This expense will appear in ${where}.` : 'This expense won\'t count toward any balance.'}</span>`;
+    ? `${li('alert-triangle', 15)} <span>${warn}${fix}</span>`
+    : nudge
+      ? `${li('lightbulb', 15)} <span>${nudge}</span>`
+      : `${li('info', 15)} <span>${where ? `This expense will appear in ${where}.` : 'This expense won\'t count toward any balance.'}</span>`;
   initIcons();
 }
 
@@ -2646,17 +2979,48 @@ function readExpenseForm(prefix) {
     date: v('Date'), person: v('Person'), provider: v('Provider').trim(),
     amount: parseFloat(v('Amount')), receiptName: v('Receipt').trim(), notes: v('Notes').trim(),
     category: v('Category'), account: v('Account'),
-    reference: document.getElementById(prefix + 'Historical').checked,
-    exclude27: document.getElementById(prefix + 'Exclude27').checked,
+    reference: !!document.getElementById(prefix + 'Historical')?.checked,
+    exclude27: !!document.getElementById(prefix + 'Exclude27')?.checked,
   };
 }
 
-function saveExpense() {
-  const f = readExpenseForm('exp');
-  if (!f.date || !f.person || !f.provider || isNaN(f.amount) || f.amount <= 0) {
-    alert('Please fill in Date, Person, Provider, and Amount.');
-    return;
+// Marks missing fields in a form; returns true when everything is filled in.
+// checks: [[elementId, ok], ...]
+function validateFields(checks, errorId, msg) {
+  let first = null;
+  checks.forEach(([id, ok]) => {
+    const el = document.getElementById(id);
+    el.classList.toggle('invalid', !ok);
+    el.setAttribute('aria-invalid', String(!ok));
+    if (!ok && !first) first = el;
+  });
+  const err = document.getElementById(errorId);
+  err.textContent = first ? (msg || 'Fill in the highlighted fields.') : '';
+  err.classList.toggle('show', !!first);
+  if (first) {
+    first.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    (first.querySelector('button') || first).focus({ preventScroll: true });
   }
+  return !first;
+}
+function clearInvalid(modalId) {
+  const m = document.getElementById(modalId);
+  m.querySelectorAll('.invalid').forEach(el => { el.classList.remove('invalid'); el.removeAttribute('aria-invalid'); });
+  m.querySelectorAll('.form-error').forEach(el => { el.textContent = ''; el.classList.remove('show'); });
+}
+document.addEventListener('input', e => { if (e.target.classList?.contains('invalid')) { e.target.classList.remove('invalid'); e.target.removeAttribute('aria-invalid'); } });
+
+let lastSaveClick = 0;
+function saveExpense() {
+  if (Date.now() - lastSaveClick < 1000) return;   // ignore a double tap
+  lastSaveClick = Date.now();
+  const f = readExpenseForm('exp');
+  if (!validateFields([
+    ['expPersonPills', !!f.person], ['expAmount', !isNaN(f.amount) && f.amount > 0],
+    ['expProvider', !!f.provider], ['expDate', !!f.date],
+  ], 'expError')) return;
+  const dup = DATA.expenses.find(e => e.date === f.date && e.person === f.person && Math.abs(e.amount - f.amount) < 0.005);
+  if (dup && !confirm(`This looks like a duplicate of an expense already saved:\n\n${fmtDate(dup.date)} · ${dup.person} · ${dup.provider} · ${fmt$(dup.amount)}\n\nSave it anyway?`)) return;
   closeModal('modalAddExpense');
   commit({ kind: 'upsert', table: 'expenses', record: { id: uid(), ...f } });
   showToast(`Expense added: ${fmt$(f.amount)} for ${f.person}`);
@@ -2681,6 +3045,7 @@ function openEditExpense(id) {
   document.getElementById('editExpHistorical').checked = !!e.reference;
   document.getElementById('editExpExclude27').checked = !!e.exclude27;
   document.getElementById('editExpDate').onchange = updateEditPreview;
+  clearInvalid('modalEditExpense');
   updateEditPreview();
   openModal('modalEditExpense');
 }
@@ -2690,10 +3055,9 @@ function updateExpense() {
   const existing = DATA.expenses.find(x => x.id === id);
   if (!existing) return;
   const f = readExpenseForm('editExp');
-  if (!f.date || !f.person || !f.provider || isNaN(f.amount) || f.amount <= 0) {
-    alert('Please fill in all required fields.');
-    return;
-  }
+  if (!validateFields([
+    ['editExpDate', !!f.date], ['editExpProvider', !!f.provider], ['editExpAmount', !isNaN(f.amount) && f.amount > 0],
+  ], 'editExpError')) return;
   closeModal('modalEditExpense');
   commit({ kind: 'upsert', table: 'expenses', record: { ...existing, ...f } });
   showToast('Expense updated');
@@ -2710,10 +3074,11 @@ function deleteExpense(id) {
 // ═══════════════════════════════════════════════════════════
 
 function openAddHSAPayback(account) {
-  document.getElementById('pbDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('pbDate').value = isoLocal();
   document.getElementById('pbAmount').value = '';
   document.getElementById('pbNotes').value = '';
   document.getElementById('pbAccount').value = account || 'HSA';
+  clearInvalid('modalAddPayback');
   openModal('modalAddPayback');
 }
 
@@ -2723,10 +3088,7 @@ function savePayback() {
   const notes = document.getElementById('pbNotes').value.trim();
   const account = document.getElementById('pbAccount').value;
 
-  if (!date || isNaN(amount) || amount <= 0) {
-    alert('Please fill in Date and Amount.');
-    return;
-  }
+  if (!validateFields([['pbDate', !!date], ['pbAmount', !isNaN(amount) && amount > 0]], 'pbError')) return;
   if (account === 'LPFSA') {
     const year = lpfsaPlanYearOf(date), l = calcLPFSA(year);
     if (l.balance !== null && amount > l.balance + 0.005 &&
@@ -2750,11 +3112,12 @@ function deletePayback(id) {
 function openRecordPayment() {
   const { balance, deduct } = nextCheckAmount();
   const nd = nextPaymentDate();
-  const dateStr = nd.toISOString().split('T')[0];
+  const dateStr = isoLocal(nd);
   document.getElementById('pmtDate').value = dateStr;
   document.getElementById('pmtScheduled').value = SCHEDULED_PMT;
   document.getElementById('pmtDeducted').value = deduct > 0 ? deduct.toFixed(2) : '';
   document.getElementById('pmtNotes').value = '';
+  clearInvalid('modalRecordPayment');
   updatePaymentPreview();
   openModal('modalRecordPayment');
 }
@@ -2764,8 +3127,13 @@ function updatePaymentPreview() {
   const deducted = parseFloat(document.getElementById('pmtDeducted').value) || 0;
   const actual = Math.max(0, scheduled - deducted);
   document.getElementById('pmtActual').value = actual.toFixed(2);
+  const suggested = Math.max(0, nextCheckAmount().deduct);
+  const differs = Math.abs(deducted - suggested) > 0.005;
+  document.getElementById('pmtPreview').className = differs ? 'notice notice-yellow' : 'notice notice-blue';
   document.getElementById('pmtPreview').innerHTML = `
-    <i data-lucide="credit-card" class="licon" style="width:13px;height:13px"></i> Check = ${fmt$(scheduled)} − ${fmt$(deducted)} deducted = <strong>${fmt$(actual)}</strong>
+    <i data-lucide="credit-card" class="licon" style="width:13px;height:13px"></i>
+    <span>Check = ${fmt$(scheduled)} − ${fmt$(deducted)} deducted = <strong>${fmt$(actual)}</strong>${differs
+      ? `<br>The tracker suggests deducting <strong>${fmt$(suggested)}</strong>. <a href="#" onclick="document.getElementById('pmtDeducted').value='${suggested.toFixed(2)}';updatePaymentPreview();return false">Use that</a>` : ''}</span>
   `;
   initIcons();
 }
@@ -2777,7 +3145,7 @@ function savePayment() {
   const actualAmount = Math.max(0, scheduledAmount - deductedAmount);
   const notes = document.getElementById('pmtNotes').value.trim();
 
-  if (!date) { alert('Please enter a payment date.'); return; }
+  if (!validateFields([['pmtDate', !!date]], 'pmtError')) return;
 
   closeModal('modalRecordPayment');
   commit({ kind: 'upsert', table: 'childPayments', record: { id: uid(), date, scheduledAmount, actualAmount, deductedAmount, notes } });
@@ -2806,43 +3174,74 @@ function renderLPFSA() {
   const year = ysel.value;
   document.getElementById('lpfsaTitleYear').textContent = year;
   refreshLPFSALabels(year);
-  document.getElementById('lpfsaSubtitle').innerHTML = `Limited-purpose FSA · plan year 1/1/${year} – 12/31/${year} · dental &amp; vision · unused money does not carry over`;
+  document.getElementById('lpfsaSubtitle').innerHTML = `Limited-purpose FSA · ${String(new Date().getFullYear()) < year ? 'starts 1/1/' + year + ' · ' : ''}plan year 1/1/${year} – 12/31/${year} · dental &amp; vision · unused money does not carry over`;
 
   const l = calcLPFSA(year);
+  const cur = String(new Date().getFullYear());
+  const notice = document.getElementById('lpfsaNotice');
+  const yearEnd = new Date(Number(year), 11, 31, 23, 59, 59);
+  const daysLeft = Math.ceil((yearEnd - new Date()) / 86400000);
+  const inYear = cur === year, unused = l.remaining !== null && l.remaining > 0.005;
+  // "Left to use" turns amber 75 days out and red in the last 30
+  const urgency = inYear && unused ? (daysLeft <= 30 ? 'redtext' : daysLeft <= 75 ? 'amber' : '') : '';
+  const setLink = `<a href="#" onclick="editElection('${year}');return false">${l.election === null ? 'Set starting balance' : 'Change'}</a>`;
+
+  let balSub = l.election === null ? setLink : `Started at ${fmt$(l.election)} on 1/1/${year} · ${setLink}`;
+  if (inYear && unused && daysLeft <= 92) balSub += `<br><strong class="${urgency || 'amber'}">${fmt$(l.remaining)} unused · ${daysLeft} day${daysLeft === 1 ? '' : 's'} left</strong>`;
+
+  let breakdown;
+  if (l.election === null) {
+    breakdown = `<div class="label">Claimed in ${year}</div>
+      <div class="value">${fmt$(l.claimedYear)}</div>
+      <div class="sub">${l.expenseCount} expense${l.expenseCount === 1 ? '' : 's'} · ${fmt$(Math.max(0, l.pending))} waiting to be reimbursed · set your starting balance to see what's left</div>`;
+  } else {
+    const E = Math.max(l.election, 0.01);
+    const reimb = Math.max(0, l.reimbursedYear), wait = Math.max(0, l.pending), left = Math.max(0, l.remaining);
+    const w = v => `${Math.min(100, (v / E) * 100).toFixed(2)}%`;
+    breakdown = `<div class="label">Where your ${fmt$(l.election)} stands</div>
+      <div class="lp-bar" role="img" aria-label="${fmt$(reimb)} reimbursed, ${fmt$(wait)} waiting, ${fmt$(left)} left to use">
+        <span style="width:${w(reimb)};background:var(--success)"></span>
+        <span style="width:${w(wait)};background:var(--warning)"></span>
+        <span style="width:${w(left)};background:#93c5fd"></span>
+      </div>
+      <div class="lp-legend">
+        <div><div class="k"><span class="dot" style="background:var(--success)"></span>Reimbursed to you</div>
+          <div class="v">${fmt$(reimb)}</div><div class="s">${l.reimbursements.length} payout${l.reimbursements.length === 1 ? '' : 's'} from the FSA</div></div>
+        <div><div class="k"><span class="dot" style="background:var(--warning)"></span>Waiting to be reimbursed</div>
+          <div class="v ${l.pending > 0.005 ? 'amber' : ''}">${signed$(l.pending)}</div><div class="s">${l.pending < -0.005 ? 'Paid out more than claimed' : 'Claimed, not paid out yet'}</div></div>
+        <div><div class="k"><span class="dot" style="background:#93c5fd"></span>Left to use</div>
+          <div class="v ${urgency}">${signed$(l.remaining)}</div><div class="s">${l.remaining < -0.005 ? 'Claims exceed your election' : `Spend by 12/31/${year} — doesn't carry over`}</div></div>
+      </div>
+      <div class="sub" style="margin-top:10px">Claimed in ${year}: ${fmt$(l.claimedYear)} across ${l.expenseCount} expense${l.expenseCount === 1 ? '' : 's'}</div>`;
+  }
   document.getElementById('lpfsaStats').innerHTML = `
     <div class="stat-card">
       <div class="label">LPFSA ${year} Balance</div>
-      <div class="value blue">${l.balance === null ? '—' : (l.balance < 0 ? '−' : '') + fmt$(l.balance)}</div>
-      <div class="sub">${l.election === null ? '' : `Started at ${fmt$(l.election)} on 1/1/${year} · `}<a href="#" onclick="editElection('${year}');return false">${l.election === null ? 'Set starting balance' : 'Change'}</a></div>
+      <div class="value blue">${signed$(l.balance)}</div>
+      <div class="sub">${balSub}</div>
     </div>
-    <div class="stat-card">
-      <div class="label">Waiting to Be Reimbursed</div>
-      <div class="value ${l.pending > 0.005 ? 'red' : 'green'}">${l.pending < -0.005 ? '−' : ''}${fmt$(l.pending)}</div>
-      <div class="sub">${l.pending > 0.005 ? 'Claimed but not paid out yet' : l.pending < -0.005 ? 'Paid out more than claimed' : 'All claims paid'}</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Not Yet Spent</div>
-      <div class="value ${l.remaining > 0 ? 'red' : 'green'}">${l.remaining === null ? '—' : (l.remaining < 0 ? '−' : '') + fmt$(l.remaining)}</div>
-      <div class="sub">${l.remaining === null ? 'Set your starting balance first' : l.remaining > 0 ? `Use by 12/31/${year} — doesn't carry over` : l.remaining < 0 ? 'Claims exceed election' : 'Fully used'}</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Claimed in ${year}</div>
-      <div class="value">${fmt$(l.claimedYear)}</div>
-      <div class="sub">${l.expenseCount} eligible expense${l.expenseCount === 1 ? '' : 's'}</div>
-    </div>`;
+    <div class="stat-card lp-card">${breakdown}</div>`;
 
-  const notice = document.getElementById('lpfsaNotice');
-  const yearEnd = new Date(Number(year), 11, 31);
-  const daysLeft = Math.ceil((yearEnd - new Date()) / 86400000);
   const stray = DATA.expenses.filter(e => e.account === 'LPFSA' && !years.includes(e.date.slice(0, 4)));
-  notice.innerHTML = (l.election === null
-    ? `<div class="notice notice-blue" style="margin-bottom:16px">${li('info', 15)} <span>Enter your ${year} election — the balance your FSA starts with on 1/1/${year}. <a href="#" onclick="editElection('${year}');return false">Set election</a></span></div>` : '')
-    + (l.remaining > 0 && daysLeft >= 0 && daysLeft <= 75
-    ? `<div class="notice notice-yellow" style="margin-bottom:16px">${li('alert-triangle', 15)} <span>${fmt$(l.remaining)} of your ${year} LPFSA is unused and the plan year ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. FSA money doesn't carry over — anything left after 12/31/${year} is lost. Check your plan's deadline for submitting claims.</span></div>`
-    : '')
-    + (stray.length
-    ? `<div class="notice notice-yellow" style="margin-bottom:16px">${li('alert-triangle', 15)} <span>${stray.length} expense${stray.length > 1 ? 's are' : ' is'} marked LPFSA but dated outside the plan year (${stray.map(e => fmtDate(e.date)).join(', ')}). Change ${stray.length > 1 ? 'them' : 'it'} to HSA.</span></div>`
-    : '');
+  const box = (cls, icon, html) => `<div class="notice ${cls}" style="margin-bottom:16px">${li(icon, 15)} <span>${html}</span></div>`;
+  let notes = '';
+  if (cur > years[years.length - 1])
+    notes += box('notice-blue', 'calendar-plus', `No LPFSA plan year is set up for ${cur}. If you elected one, <a href="#" onclick="editElection('${cur}');return false">set up LPFSA ${cur}</a>.`);
+  if (cur < year)
+    notes += box('notice-blue', 'calendar', `Your LPFSA ${year} starts on 1/1/${year}. Dental and vision expenses before then go to the HSA.`);
+  if (l.election === null)
+    notes += box('notice-blue', 'info', `Enter your ${year} election — the balance your FSA starts with on 1/1/${year}. <a href="#" onclick="editElection('${year}');return false">Set election</a>`);
+  if (inYear && unused && daysLeft >= 0 && daysLeft <= 75)
+    notes += box(daysLeft <= 30 ? 'notice-red' : 'notice-yellow', 'alert-triangle', `${fmt$(l.remaining)} of your ${year} LPFSA is unused and the plan year ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. Anything left after 12/31/${year} is lost. Check your plan's deadline for submitting claims.`);
+  if (cur > year) {
+    if (l.pending > 0.005)
+      notes += box('notice-yellow', 'alert-triangle', `The ${year} plan year has ended. <strong>${fmt$(l.pending)}</strong> of ${year} claims hasn't been reimbursed yet — submit it before your plan's claim deadline (check your plan; it's often around 3/31/${Number(year) + 1}). Reimbursements dated early in ${Number(year) + 1} still count toward ${year}.`);
+    else if (unused)
+      notes += box('notice-blue', 'info', `The ${year} plan year has ended with ${fmt$(l.remaining)} unused. All ${year} claims have been reimbursed.`);
+  }
+  if (stray.length)
+    notes += box('notice-yellow', 'alert-triangle', `${stray.length} expense${stray.length > 1 ? 's are' : ' is'} marked LPFSA but dated outside the plan year (${stray.map(e => fmtDate(e.date)).join(', ')}). Change ${stray.length > 1 ? 'them' : 'it'} to HSA.`);
+  notice.innerHTML = notes;
 
   const exps = DATA.expenses.filter(e => e.account === 'LPFSA' && e.date.startsWith(year)).sort((a, b) => b.date.localeCompare(a.date));
   document.getElementById('lpfsaExpenseBody').innerHTML = exps.length ? exps.map(e => `
@@ -2890,28 +3289,61 @@ function renderLPFSA() {
 
 function editElection(year) {
   const cur = lpfsaElection(year);
-  const v = prompt(`Limited-purpose FSA election for ${year} ($):`, cur === null ? '' : cur);
-  if (v === null) return;
-  const n = v.trim() === '' ? '' : parseFloat(v.replace(/[$,]/g, ''));
-  if (n !== '' && (isNaN(n) || n < 0)) { alert('Please enter a dollar amount.'); return; }
+  document.getElementById('elecYear').value = year;
+  document.getElementById('elecTitle').textContent = `LPFSA ${year} starting balance`;
+  document.getElementById('elecHelp').innerHTML = `Your ${year} election — the full amount your limited-purpose FSA makes available on <strong>1/1/${year}</strong>. Reimbursements draw it down. Leave blank if you don't have an LPFSA for ${year}.`;
+  document.getElementById('elecAmount').value = cur === null ? '' : cur;
+  clearInvalid('modalElection');
+  openModal('modalElection');
+}
+
+function saveElection() {
+  const year = document.getElementById('elecYear').value;
+  const raw = document.getElementById('elecAmount').value.trim();
+  const n = raw === '' ? '' : parseFloat(raw.replace(/[$,]/g, ''));
+  if (!validateFields([['elecAmount', n === '' || (!isNaN(n) && n >= 0)]], 'elecError', 'Enter a dollar amount, or leave it blank.')) return;
+  closeModal('modalElection');
   commit({ kind: 'setting', key: `LPFSA election ${year}`, value: n });
+  showToast(n === '' ? `LPFSA ${year} election cleared` : `LPFSA ${year} starting balance set to ${fmt$(n)}`);
 }
 
 // ═══════════════════════════════════════════════════════════
 //  MODAL HELPERS
 // ═══════════════════════════════════════════════════════════
 
+let modalOpener = null;
 function openModal(id) {
-  document.getElementById(id).classList.add('open');
+  const bg = document.getElementById(id);
+  if (!bg.classList.contains('open')) modalOpener = document.activeElement;
+  bg.classList.add('open');
+  const m = bg.querySelector('.modal');
+  m.scrollTop = 0;
+  // Focus the dialog itself (not a field) so phones don't pop the keyboard straight away
+  setTimeout(() => m.focus({ preventScroll: true }), 30);
 }
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
+  if (modalOpener && document.body.contains(modalOpener)) modalOpener.focus({ preventScroll: true });
+  modalOpener = null;
 }
+document.querySelectorAll('.modal').forEach(m => {
+  m.setAttribute('role', 'dialog');
+  m.setAttribute('aria-modal', 'true');
+  m.tabIndex = -1;
+  const h = m.querySelector('h2');
+  if (h) { h.id = h.id || m.parentElement.id + 'Title'; m.setAttribute('aria-labelledby', h.id); }
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const open = [...document.querySelectorAll('.modal-bg.open')].pop();
+  if (open) closeModal(open.id);
+  else closeSidebar();
+});
 
 // Close modal on background click
 document.querySelectorAll('.modal-bg').forEach(bg => {
   bg.addEventListener('click', e => {
-    if (e.target === bg) bg.classList.remove('open');
+    if (e.target === bg) closeModal(bg.id);
   });
 });
 
@@ -2919,7 +3351,9 @@ document.querySelectorAll('.modal-bg').forEach(bg => {
 //  TOAST NOTIFICATIONS
 // ═══════════════════════════════════════════════════════════
 
-function showToast(msg) {
+let toastBase = '', toastTimer = null;
+function showToast(msg, ms, isFollowUp) {
+  if (!isFollowUp) { toastBase = msg; if (saveNotice) msg += ' · saving…'; }
   let t = document.getElementById('toast');
   if (!t) {
     t = document.createElement('div');
@@ -2928,13 +3362,16 @@ function showToast(msg) {
       position:fixed; bottom:24px; right:24px; background:#1e2a3a; color:white;
       padding:12px 20px; border-radius:8px; font-size:13.5px; z-index:9999;
       box-shadow:0 4px 20px rgba(0,0,0,0.3); opacity:0; transition:opacity 0.25s;
-      max-width:320px;
+      max-width:min(340px, calc(100vw - 48px)); pointer-events:none;
     `;
+    t.setAttribute('role', 'status');
+    t.setAttribute('aria-live', 'polite');
     document.body.appendChild(t);
   }
   t.textContent = msg;
   t.style.opacity = '1';
-  setTimeout(() => { t.style.opacity = '0'; }, 3000);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.opacity = '0'; }, ms || 3000);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -3046,10 +3483,9 @@ function exportCSV() {
 //  INIT
 // ═══════════════════════════════════════════════════════════
 
-document.getElementById('currentYear').textContent = new Date().getFullYear();
 
 // ── Dark / Light mode ──
-function applyTheme(dark) {
+function applyTheme(dark, remember) {
   document.body.classList.toggle('dark', dark);
   const iconName = dark ? 'sun' : 'moon';
   const btn = document.getElementById('themeBtn');
@@ -3057,15 +3493,18 @@ function applyTheme(dark) {
   if (btn) btn.innerHTML = li(iconName, 18);
   if (mobBtn) mobBtn.innerHTML = li(iconName, 18);
   initIcons();
-  localStorage.setItem('medTracker_theme', dark ? 'dark' : 'light');
+  if (remember) localStorage.setItem('medTracker_theme', dark ? 'dark' : 'light');
   // Re-render charts so colors update for dark/light mode
   if (currentPage() === 'dashboard') renderDashboardCharts();
 }
 function toggleTheme() {
-  applyTheme(!document.body.classList.contains('dark'));
+  applyTheme(!document.body.classList.contains('dark'), true);
 }
 // Apply saved theme immediately
-applyTheme(localStorage.getItem('medTracker_theme') === 'dark');
+{
+  const saved = localStorage.getItem('medTracker_theme');
+  applyTheme(saved ? saved === 'dark' : !!window.matchMedia?.('(prefers-color-scheme: dark)').matches);
+}
 
 // ── Mobile sidebar ──
 function toggleSidebar() {
